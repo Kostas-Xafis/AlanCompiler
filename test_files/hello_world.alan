@@ -1,0 +1,3 @@
+hello () : proc {
+    writeString("Hello world!\n");
+}

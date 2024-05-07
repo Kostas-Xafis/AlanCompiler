@@ -1,0 +1,104 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>gr.hua.dit.compilers.labs</groupId>
+  <artifactId>compiler</artifactId>
+  <version>0.0.2</version>
+  <packaging>jar</packaging>
+
+  <name>compiler-lab02</name>
+
+  <properties>
+      <java.version>1.8</java.version>
+      <jflex.version>1.9.0</jflex.version>
+      <java-cup.version>11b-20160615-2</java-cup.version>
+  </properties>
+
+  <dependencies>
+      <dependency>
+        <groupId>com.github.vbmacher</groupId>
+        <artifactId>java-cup-runtime</artifactId>
+        <version>${java-cup.version}</version>
+      </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
+          <configuration>
+              <source>${java.version}</source>
+              <target>${java.version}</target>
+          </configuration>
+      </plugin>
+      <plugin>
+        <groupId>de.jflex</groupId>
+        <artifactId>jflex-maven-plugin</artifactId>
+        <version>${jflex.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>src/main/java</outputDirectory>
+              <lexDefinitions>
+                  <lexDefinition>src/main/jflex</lexDefinition>
+              </lexDefinitions>
+              <verbose>false</verbose>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.github.vbmacher</groupId>
+        <artifactId>cup-maven-plugin</artifactId>
+        <version>${java-cup.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <outputDirectory>${project.build.directory}/generated-sources/cup</outputDirectory>
+          <packageName>gr.hua.dit.compiler</packageName>
+          <className>Parser</className>
+          <symbolsName>Symbols</symbolsName>
+          <expectedConflicts>1</expectedConflicts>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <!-- Run shade goal on package phase -->
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <!-- add Main-Class to manifest file -->
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <Main-Class>gr.hua.dit.compiler.Main</Main-Class>
+                    <Class-Path>.</Class-Path>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
