@@ -3,7 +3,7 @@ main () : proc
     bsort (n : int, x : reference int []) : proc
 
         swap (x : reference int, y : reference int) : proc
-        t : int;
+            t : int;
         {
             t = x;
             x = y;
@@ -45,7 +45,6 @@ main () : proc
     seed : int;
     x : int[16];
     i : int;
-
 { -- main
     seed = 65;
     i = 0;

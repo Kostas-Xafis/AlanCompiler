@@ -1,5 +1,5 @@
 main () : proc
-    ra : byte [32];
+    r : byte [32];
     reverse (s : reference byte []) : proc
         i : int;
         l : int;

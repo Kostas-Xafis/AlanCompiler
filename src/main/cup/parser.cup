@@ -1,13 +1,12 @@
 import java.util.*;
 import java.io.*;
 import gr.hua.dit.compiler.*;
-import gr.hua.dit.compiler.Lexer;
 import java_cup.runtime.Symbol;
 
 parser code {:
 //    public void report_error(String message, Object info) {
 //        System.out.println("Error: " + message);
-//        if (info == null) return ;
+//        if (info == null) return ;Σ
 //
 //        String infoStr = info.toString();
 //        if (infoStr.matches("#\\d+")) {
@@ -45,7 +44,7 @@ terminal String  T_char;
 non terminal AST prog;
 non terminal AST Expr;
 non terminal AST Assignment, FuncDef, VariableDef, LValue, LocalDef;
-non terminal AST Stmt, StmtSemi, StmtBrace, SingleStmt, WhileStmt, CompoundStmt, SFCompoundStmt, ReturnStmt, Cond;
+non terminal AST Stmt, StmtSemi, StmtBrace, SingleStmt, WhileStmt, CompoundStmt, ReturnStmt, Cond;
 non terminal AST IfStmt, IfStmtSemi, IfStmtBrace, ElseStmt;
 non terminal AST FuncParams, FuncCall, ExprList;
 non terminal AST Type, DataType, RType;
@@ -56,9 +55,7 @@ precedence left T_plus, T_minus;
 precedence left T_times, T_div, T_mod;
 precedence left T_not, T_and, T_or;
 
-precedence left T_lpar, T_rpar, T_lbracket, T_rbracket, T_lbrace, T_rbrace, T_semicolon, T_colon, T_comma;
-
-precedence left StmtBrace;
+precedence left  T_rbrace, T_semicolon, T_colon, T_comma;
 
 start with prog;
 
@@ -94,15 +91,15 @@ CompoundStmt ::= T_lbrace Stmt:s      {: RESULT = new AST("CompoundStmt", null, 
 IfStmt ::= T_if T_lpar Cond:c T_rpar IfStmtSemi:_if     {: RESULT = new AST("IfStmtSemi", "if", c, _if); :}
         | T_if T_lpar Cond:c T_rpar IfStmtBrace:_if     {: RESULT = new AST("IfStmtBrace", "if", c, _if); :}
         ;
-IfStmtSemi ::= SingleStmt:s T_semicolon ElseStmt:_if    {: RESULT = new AST("IfStmt#1", "else", s, _if); :}
+IfStmtSemi ::= SingleStmt:s T_semicolon ElseStmt:_if    {: RESULT = new AST("IfStmt", "else", s, _if); :}
             | SingleStmt:s T_semicolon                  {: RESULT = s; :}
             ;
-IfStmtBrace ::= CompoundStmt:cs T_rbrace ElseStmt:_if   {: RESULT = new AST("IfStmt#2", "else", cs, _if); :}
+IfStmtBrace ::= CompoundStmt:cs T_rbrace ElseStmt:_if   {: RESULT = new AST("IfStmt", "else", cs, _if); :}
             | CompoundStmt:cs T_rbrace                  {: RESULT = cs; :}
             ;
 ElseStmt ::= T_else IfStmt:_if                          {: RESULT = _if; :}
-          | T_else SingleStmt:cs T_semicolon            {: RESULT = new AST("IfStmt#3", "else", cs); :}
-          | T_else CompoundStmt:cs T_rbrace             {: RESULT = new AST("IfStmt#4", "else", cs); :}
+          | T_else SingleStmt:cs T_semicolon            {: RESULT = new AST("IfStmt", "else", cs); :}
+          | T_else CompoundStmt:cs T_rbrace             {: RESULT = new AST("IfStmt", "else", cs); :}
           ;
 
 WhileStmt ::= T_while T_lpar Cond:c T_rpar CompoundStmt:s T_rbrace          {: RESULT = new AST("WhileStmt", null, c, s); :}
@@ -132,13 +129,13 @@ FuncDef ::= T_id:id T_lpar FuncParams:fp T_rpar T_colon RType:rt CompoundStmt:cs
          | T_id:id T_lpar T_rpar T_colon RType:rt CompoundStmt:cs                                  {: RESULT = new AST("FuncDef", id, rt, cs); :}
          | T_id:id T_lpar T_rpar T_colon RType:rt LocalDef:ld CompoundStmt:cs                      {: RESULT = new AST("FuncDef", id, new AST("FuncParts", null, rt, ld), cs); :}
          ;
-VariableDef ::= T_id:id T_colon DataType:t T_lbracket Int_Const:i T_rbracket {: RESULT = new AST("VariableDefArr", id, t, i); :}
-             | T_id:id T_colon DataType:t                                  {: RESULT = new AST("VariableDef", id, t); :}
+VariableDef ::= T_id:id T_colon DataType:t T_lbracket Int_Const:i T_rbracket {: RESULT = new AST("VariableDef", id, t, i); :}
+             | T_id:id T_colon DataType:t                                    {: RESULT = new AST("VariableDef", id, t); :}
              ;
-LocalDef ::= FuncDef:f T_rbrace LocalDef:ld2 {: RESULT = new AST("LocalDef", null, f, ld2); :}
-          | FuncDef:f T_rbrace              {: RESULT = new AST("LocalDef", null, f); :}
-          | VariableDef:v T_semicolon LocalDef:ld2 {: RESULT = new AST("LocalDef", null, v, ld2); :}
-          | VariableDef:v T_semicolon       {: RESULT = new AST("LocalDef", null, v); :}
+LocalDef ::= FuncDef:f T_rbrace LocalDef:ld2        {: RESULT = new AST("LocalDef", null, f, ld2); :}
+          | FuncDef:f T_rbrace                      {: RESULT = new AST("LocalDef", null, f); :}
+          | VariableDef:v T_semicolon LocalDef:ld2  {: RESULT = new AST("LocalDef", null, v, ld2); :}
+          | VariableDef:v T_semicolon               {: RESULT = new AST("LocalDef", null, v); :}
           ;
 
 // Conditions
@@ -153,14 +150,14 @@ Cond ::= Expr:le Ops:op Expr:re          {: RESULT = new AST("CondOp", null, new
 // Functions
 FuncParams ::= T_id:id T_colon Type:t T_comma FuncParams:fp                {: RESULT = new AST("FuncParams", id, t, fp); :}
              | T_id:id T_colon T_reference Type:t T_comma FuncParams:fp    {: RESULT = new AST("FuncParams", id, new AST("Reference", null, t), fp); :}
-             | T_id:id T_colon Type:t                          {: RESULT = new AST("FuncParams", id, t); :}
-             | T_id:id T_colon T_reference Type:t              {: RESULT = new AST("FuncParams", id, new AST("Reference", null, t)); :}
+             | T_id:id T_colon Type:t                                      {: RESULT = new AST("FuncParams", id, t); :}
+             | T_id:id T_colon T_reference Type:t                          {: RESULT = new AST("FuncParams", id, new AST("Reference", null, t)); :}
              ;
-FuncCall ::= T_id:id T_lpar ExprList:el T_rpar   {: RESULT = new AST("FuncCall", id, el); :}
-          | T_id:id T_lpar T_rpar                {: RESULT = new AST("FuncCall", id); :}
+FuncCall ::= T_id:id T_lpar ExprList:el T_rpar  {: RESULT = new AST("FuncCall", id, el); :}
+          | T_id:id T_lpar T_rpar               {: RESULT = new AST("FuncCall", id); :}
           ;
 ExprList ::= Expr:e T_comma ExprList:el         {: RESULT = new AST("ExprList", null, e, el); :}
-           | Expr:e                             {: RESULT = e; :}
+           | Expr:e                             {: RESULT = new AST("ExprList", null, e); :}
            ;
 
 // Data Types
@@ -173,7 +170,7 @@ RType ::= DataType:t                            {: RESULT = t; :}
       ;
 
 Type ::= DataType:dt                            {: RESULT = dt; :}
-      | DataType:dt T_lbracket T_rbracket       {: RESULT = new AST("DataType", null, dt, new AST("Array", null)); :}
+      | DataType:dt T_lbracket T_rbracket       {: AST r = new AST("DataType"); r.addChildren(dt, new AST("Array", null)); RESULT = r; :}
       ;
 
 // Operators

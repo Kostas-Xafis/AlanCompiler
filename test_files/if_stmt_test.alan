@@ -44,4 +44,19 @@ if_tests () : proc {
     if ( 27 > 17 ) {
         return 1;
     }
+
+    -- Test #8
+    if ( 28 > 18 ) return 0;
+    if ( 29 > 19 ) return 1;
+
+    -- Test #9
+    if ( 40 > 30 ) {
+        return 0;
+    } else if (false) return 1;
+    else return 2;
+
+    if ( 41 > 31 ) {
+        return 3;
+    } else if (false) return 4;
+    else return 5;
 }

@@ -37,8 +37,7 @@ int         =       {digit}+
 hex         =       [0-9a-fA-F]
 string      =       \"[^\"]*\"
 char        =       \'((\\[\\ntr0\'\"])|(\\x{hex}+)|([^\']))\'
-single_line_comment   =       --[^\n]*
-multi_line_comment  =       --\*([*]+[^\/]|[^*]|\n)*\*--
+single_line_comment =       --[^\n]*
 %%
 
 // Keywords
@@ -87,18 +86,17 @@ multi_line_comment  =       --\*([*]+[^\/]|[^*]|\n)*\*--
 "*"             { return createSymbol(Symbols.T_times); }
 "%"             { return createSymbol(Symbols.T_mod); }
 
-{variable}     { return createSymbol(Symbols.T_id, yytext()); }
+{variable}      { return createSymbol(Symbols.T_id, yytext()); }
 
 {int}           { return createSymbol(Symbols.T_num, Integer.valueOf(yytext())); }
 {string}        { return createSymbol(Symbols.T_string, yytext()); }
 {char}          { return createSymbol(Symbols.T_char, yytext()); }
 
 {ws}            { }
-// { System.out.println("Matched whitespace of length: " + yytext().length()); }
 
 .              { System.err.println("Illegal character: " + yytext()); }
 
 {single_line_comment}    {}
-// { System.out.println("Matched single line comment: " + yytext()); }
-//{multi_line_comment}    {}
+// {multi_line_comment}     {}
+// multi_line_comment  =       --\*([*]+[^\/]|[^*]|\n)*\*--
 

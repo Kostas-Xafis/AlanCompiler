@@ -28,55 +28,105 @@ public class Main {
         return argMap;
     }
 
+    private static void flattenLocalDef() {
+        ArrayList<AST<?>> LocalDefRoot = AST.getHangingRoots(AST.getNodes("LocalDef"));
+        LocalDefRoot.forEach(root -> {
+            root.traverseBranch("LocalDef", (node) -> {
+                root.addChildren(node.getLeft());
+                if (root != node) node.deref();
+            });
+            root.setLeft(null);
+            root.setRight(null);
+        });
+    }
+
+    private static void flattenExprList() {
+        ArrayList<AST<?>> ExprListRoot = AST.getHangingRoots(AST.getNodes("ExprList"));
+        ExprListRoot.forEach(root -> {
+            root.traverseBranch("ExprList", (node) -> {
+                root.addChildren(node.getLeft());
+                if (root != node) node.deref();
+            });
+            root.setLeft(null);
+            root.setRight(null);
+        });
+    }
+
+    private static void flattenFuncParams() {
+        ArrayList<AST<?>> FuncParamsRoot = AST.getHangingRoots(AST.getNodes("FuncParams"));
+        FuncParamsRoot.forEach(root -> {
+            root.addChildren(new AST<>("FuncParam", root.getValue(), root.getLeft()));
+            root.traverseBranch("FuncParams", (node) -> {
+                if (root != node) {
+                    root.addChildren(node);
+                    node.deref();
+                }
+            });
+            root.setValue(null);
+            root.setLeft(null);
+            root.setRight(null);
+            root.getChildren().forEach(node -> {
+                node.setRight(null);
+            });
+        });
+    }
+
     public static void main(String[] args) throws IOException {
         HashMap<String, String> argMap = parseArgs(args);
         Boolean willExecute = argMap.containsKey("-x");
         Boolean isTest = argMap.containsKey("-t");
+        Boolean hasInputFile = argMap.containsKey("-f");
+        Boolean flattenAST = argMap.containsKey("-flat");
         String path = argMap.get("-f");
 
-        if (!path.endsWith(".alan")) {
+        if (hasInputFile && !path.endsWith(".alan")) {
             System.out.println("Incompatible file format. Please provide a .alan file.");
-        } else {
+        } else if (hasInputFile){
             path = pathToAbsolute(path);
         }
 
-        Reader reader = path == null ? new InputStreamReader(System.in)
+        Reader reader = !hasInputFile ? new InputStreamReader(System.in)
                                 : new InputStreamReader(Files.newInputStream(Paths.get(path)), StandardCharsets.UTF_8);
-        Lexer lexer;
-        try {
-             lexer = new Lexer(reader);
-        } catch (Exception e) {
-            if (isTest)
-                System.out.println(0);
-            else
-                System.err.println("Lexer Error: " + e.getMessage());
-            return;
-        }
+        Lexer lexer = new Lexer(reader);
         Parser parser = new Parser(lexer);
 
+//        long startParse = System.currentTimeMillis();
         try {
-            Object result = parser.parse().value;
+            AST<?> rootRes = (AST<?>) parser.parse().value;
+            if (flattenAST) {
+                flattenLocalDef();
+                flattenExprList();
+                flattenFuncParams();
+            }
         } catch(Exception e) {
-            if (isTest) {
-                System.out.println(0);
-            } else {
+            if (!isTest) {
                 System.err.println("Error: " + e);
             }
         } finally {
+//            long endParse = System.currentTimeMillis();
+//            System.out.println("Time to parse: " + (endParse - startParse) + "ms");
+
             ArrayList<AST<?>> astNodes = AST.getAllNodes();
+
+//            long start = System.currentTimeMillis();
+            ArrayList<AST<?>> hangingRoots = AST.getHangingRoots();
+//            long end = System.currentTimeMillis();
+
             if (isTest) {
-                ArrayList<AST<?>> hangingRoots = AST.getHangingRoots();
+                // If there is only one hanging root and it is a function definition, then the program is correctly parsed
                 if (hangingRoots.size() == 1 && hangingRoots.get(0).getType().equals("FuncDef")) {
-                    System.out.println(1);
-                } else {
                     System.out.println(0);
+                } else {
+                    System.out.println(1);
                 }
             } else {
-                System.out.println("Total ast nodes: " + astNodes.size() + "\n Nodes :" + astNodes);
-                AST.getHangingRoots().forEach(root -> {
-                    System.out.println(root.formattedString(0, Integer.MAX_VALUE));
+                System.out.println("Total ast nodes: " + astNodes.size());
+//                System.out.println("Nodes : " + astNodes);
+                hangingRoots.forEach(root -> {
+                    System.out.println(root.formattedString(0, 35));
                 });
             }
+//            System.out.println("Time to find hanging roots: " + (end - start) + "ms");
         }
     }
 }
