@@ -51,7 +51,7 @@ public class FuncCall extends Expr<FuncType> {
             // Check if the types of the arguments match the types of the function definition
             for (int i = 0; i < funcDefArgTypes.size(); i++) {
                 if (!funcCallArgTypes.get(i).equals(funcDefArgTypes.get(i))) {
-                    throw SemanticException.IncorrectArgumentTypeException(tbl, functionName, i, funcCallArgTypes.get(i));
+                    throw SemanticException.IncorrectFuncArgumentTypeException(tbl, functionName, i, funcCallArgTypes.get(i));
                 }
             }
         } else {

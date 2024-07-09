@@ -1,8 +1,6 @@
 package gr.hua.dit.compiler.ast;
 
 import gr.hua.dit.compiler.errors.SemanticException;
-import gr.hua.dit.compiler.irgen.IRHelper;
-import gr.hua.dit.compiler.irgen.LabelAddress;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 
 public class IfStmt extends Stmt {

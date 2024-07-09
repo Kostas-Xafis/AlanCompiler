@@ -61,6 +61,18 @@ public class ASTNode<T> {
         }
     }
 
+    public ArrayList<ASTNode<?>> getNodes(String nodeName) {
+        ArrayList<ASTNode<?>> nodes = new ArrayList<>();
+        this.traverse(n -> {
+            if (n.name.equals(nodeName)) {
+                nodes.add(n);
+            }
+            return null;
+        });
+        return nodes;
+    }
+
+
     public String toString() {
         return "{ Name: " + name + ", Value: \"" + value + "\"" + (left != null ? ", Left: " + this.left.name : "") + (right != null ? ", Right: " + this.right.name : "")+ "}";
     }

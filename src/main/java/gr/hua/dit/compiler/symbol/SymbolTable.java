@@ -61,7 +61,7 @@ public class SymbolTable {
 
     public SymbolEntry getFunctionEntry() {
         Scope currScope = scopes.removeFirst();
-        SymbolEntry s = scopes.getFirst().values().stream().findFirst().filter(x -> x.getType() instanceof FuncType).orElse(null);
+        SymbolEntry s = scopes.getFirst().values().stream().filter(x -> x.getType() instanceof FuncType).findFirst().orElse(null);
         scopes.addFirst(currScope);
         return s;
     }

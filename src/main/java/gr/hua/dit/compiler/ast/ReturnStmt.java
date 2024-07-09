@@ -36,10 +36,10 @@ public class ReturnStmt extends ASTNode {
                 returnType = expr.getInferredType();
             }
             if (!funcDefReturnType.equals(returnType)) {
-                throw new TypeException("Return", funcDefReturnType, returnType);
+                throw new TypeException("ReturnStmt", funcDefReturnType, returnType);
             }
         } else if (!funcDefReturnType.equals(DataType.ProcType)) {
-            throw new TypeException("Return", funcDefReturnType, DataType.ProcType);
+            throw new TypeException("ReturnStmt", funcDefReturnType, DataType.ProcType);
         }
     }
 }

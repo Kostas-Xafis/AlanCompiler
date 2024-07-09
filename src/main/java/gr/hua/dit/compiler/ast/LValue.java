@@ -1,7 +1,6 @@
 package gr.hua.dit.compiler.ast;
 
 import gr.hua.dit.compiler.errors.SemanticException;
-import gr.hua.dit.compiler.errors.TypeException;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
 
@@ -44,6 +43,15 @@ public class LValue extends Expr<DataType> {
             this.getInferredType().setAccessed(true);
             if(!expr.getInferredType().equals(DataType.IntType)) {
                 throw new SemanticException("Array index must be of type 'int'");
+            }
+            if (expr instanceof ConstInt) {
+                int index = ((ConstInt) expr).getValue();
+                // Array have length of 0 when
+                if (type.getArraySize() != 0 && index >= type.getArraySize()) {
+                        throw SemanticException.ArrayIndexOutOfBoundsException(tbl, getName(), index);
+                }
+            } else if (!(expr instanceof Mops) && expr instanceof Expr && expr.getValue() == "-") {
+                throw SemanticException.ArrayIndexMustBePositiveException(getName());
             }
         }
 //        System.out.println("LValue: " + getName() + ":" + type + " " + expr);

@@ -2,6 +2,7 @@ package gr.hua.dit.compiler.ast;
 
 import gr.hua.dit.compiler.errors.SemanticException;
 import gr.hua.dit.compiler.symbol.SymbolTable;
+import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
 
@@ -36,13 +37,20 @@ public class FuncDef extends ASTNode<String> {
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if function is already defined
         if (tbl.lookup(functionName) != null) {
-            throw new SemanticException("Function " + functionName + " already defined");
+            throw SemanticException.FunctionAlreadyDefinedException(functionName);
         }
         tbl.addEntry(functionName, funcType);
         tbl.openScope();
         if (args != null) args.sem(tbl);
         if (localDef != null) localDef.sem(tbl);
         if (compoundStmt != null) compoundStmt.sem(tbl);
+
+        if (!funcType.getResult().equals(DataType.ProcType)) {
+            boolean hasReturn = !this.getNodes("ReturnStmt").isEmpty();
+            if (!hasReturn) {
+                throw SemanticException.NoReturnStatementException(functionName);
+            }
+        }
         tbl.closeScope();
     }
 

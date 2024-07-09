@@ -17,23 +17,23 @@ public class VariableDef extends ASTNode<String> {
 
     @Override
     public String toString() {
-        return this.varName + " : " + varType;
+        return varName + " : " + varType;
     }
 
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if variable is already defined
-        if (tbl.lookup(this.varName, true) != null) {
-            throw new SemanticException("Variable " + this.varName + " already defined");
+        if (tbl.lookup(varName, true) != null) {
+            throw SemanticException.VariableAlreadyDefinedException(varName);
         }
-        tbl.addEntry(this.varName, varType);
+        tbl.addEntry(varName, varType);
     }
 
     public String getVariableName() {
-        return this.varName;
+        return varName;
     }
 
     public DataType getVariableType() {
-        return this.varType;
+        return varType;
     }
 
 }

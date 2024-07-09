@@ -2,6 +2,7 @@ package gr.hua.dit.compiler.ast;
 
 import gr.hua.dit.compiler.errors.SemanticException;
 import gr.hua.dit.compiler.symbol.SymbolTable;
+import gr.hua.dit.compiler.types.DataType;
 
 public class Program extends ASTNode {
 
@@ -13,6 +14,9 @@ public class Program extends ASTNode {
     }
 
     public void sem(SymbolTable tbl) throws SemanticException {
+        if(!main.getFuncDefType().getResult().equals(DataType.ProcType)) {
+            throw SemanticException.MainFunctionMustReturnProcException();
+        };
         main.sem(tbl);
     }
 }
