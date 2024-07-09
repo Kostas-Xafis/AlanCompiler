@@ -1,6 +1,6 @@
 main () : proc
     r : byte [32];
-    reverse (s : reference byte []) : proc
+    reverse (s : reference byte []) : int
         i : int;
         l : int;
     {
@@ -13,6 +13,6 @@ main () : proc
         r[i] = '\0';
     }
 { -- main
-    reverse("\n!dlrow olleH");
+    reverse("10");
     writeString(r);
 } -- main

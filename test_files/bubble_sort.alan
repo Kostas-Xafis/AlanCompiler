@@ -19,7 +19,7 @@ main () : proc
         while (changed == 'y') {
             changed = 'n';
             i = 0;
-            while (i < n1) {
+            while (i < n - 1) {
                 if (x[i] > x[i+1]) {
                     swap(x[i], x[i+1]);
                     changed = 'y';

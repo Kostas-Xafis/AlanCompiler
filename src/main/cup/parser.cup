@@ -1,22 +1,11 @@
 import java.util.*;
 import java.io.*;
 import gr.hua.dit.compiler.*;
+import gr.hua.dit.compiler.ast.*;
+import gr.hua.dit.compiler.types.*;
 import java_cup.runtime.Symbol;
 
-parser code {:
-//    public void report_error(String message, Object info) {
-//        System.out.println("Error: " + message);
-//        if (info == null) return ;Σ
-//
-//        String infoStr = info.toString();
-//        if (infoStr.matches("#\\d+")) {
-//            int sId = Integer.parseInt(infoStr.substring(1));
-//            System.out.println("Error at Symbol: " + Symbols.terminalNames[sId]);
-//        } else {
-//            System.out.println("Info: " + info);
-//        }
-//    }
-:}
+parser code {::}
 
 // Delimiters
 terminal T_lpar, T_rpar, T_lbrace, T_rbrace, T_lbracket, T_rbracket, T_comma, T_colon, T_semicolon;
@@ -41,16 +30,30 @@ terminal Integer T_num;
 terminal String  T_string;
 terminal String  T_char;
 
-non terminal AST prog;
-non terminal AST Expr;
-non terminal AST Assignment, FuncDef, VariableDef, LValue, LocalDef;
-non terminal AST Stmt, StmtSemi, StmtBrace, SingleStmt, WhileStmt, CompoundStmt, ReturnStmt, Cond;
-non terminal AST IfStmt, IfStmtSemi, IfStmtBrace, ElseStmt;
-non terminal AST FuncParams, FuncCall, ExprList;
-non terminal AST Type, DataType, RType;
-non terminal AST Ops, Mops, Lops, MathSign;
-non terminal AST Int_Const, Char_Const, String_Const;
-
+non terminal Program prog;
+non terminal Expr Expr;
+non terminal Assignment Assignment;
+non terminal FuncDef FuncDef;
+non terminal VariableDef VariableDef;
+non terminal LValue LValue;
+non terminal LocalDef LocalDef;
+non terminal Statement Stmt, StmtSemi, StmtBrace, SingleStmt, CompoundStmt;
+non terminal ReturnStmt ReturnStmt;
+non terminal IfStmt IfStmt, IfStmtSemi, IfStmtBrace, ElseStmt;
+non terminal WhileStmt WhileStmt;
+non terminal Cond Cond;
+non terminal FuncParams FuncParams;
+non terminal FuncCall FuncCall;
+non terminal ExprList ExprList;
+non terminal Type Type;
+non terminal DataType DataType, RType;
+non terminal Ops.Operator Ops;
+non terminal Mops.Operator Mops, MathSign;
+non terminal Lops.Operator Lops;
+non terminal ConstInt Int_Const;
+non terminal ConstChar Char_Const;
+non terminal ConstString String_Const;
+non terminal ConstBool Bool_Const;
 precedence left T_plus, T_minus;
 precedence left T_times, T_div, T_mod;
 precedence left T_not, T_and, T_or;
@@ -60,148 +63,149 @@ precedence left  T_rbrace, T_semicolon, T_colon, T_comma;
 start with prog;
 
 prog ::=
-      |  FuncDef:fd T_rbrace         {: RESULT = fd; :}
+      |  FuncDef:fd T_rbrace         {: RESULT = new Program(fd); :}
       ;
 
 // Statements
 Stmt ::= StmtSemi:s                           {: RESULT = s; :}
       | StmtBrace:s                           {: RESULT = s; :}
-      | IfStmt:c                              {: RESULT = c; :}
-      | IfStmt:c Stmt:s                       {: RESULT = new AST("Stmt", null, c, s); :}
-      | WhileStmt:w                           {: RESULT = w; :}
-      | WhileStmt:w Stmt:s                    {: RESULT = new AST("Stmt", null, w, s); :}
+      | IfStmt:c                              {: RESULT = new Statement(c); :}
+      | IfStmt:c Stmt:s                       {: RESULT = new Statement(c, s); :}
+      | WhileStmt:w                           {: RESULT = new Statement(w); :}
+      | WhileStmt:w Stmt:s                    {: RESULT = new Statement(w, s); :}
       ;
-StmtSemi ::= StmtSemi:s T_semicolon Stmt:rs   {: RESULT = new AST("Stmt", null, s, rs); :}
+StmtSemi ::= StmtSemi:s T_semicolon Stmt:rs   {: RESULT = new Statement(s, rs); :}
           | StmtSemi:s T_semicolon            {: RESULT = s; :}
-          | Assignment:a                      {: RESULT = a; :}
-          | FuncCall:f                        {: RESULT = f; :}
-          | ReturnStmt:r                      {: RESULT = r; :}
+          | SingleStmt:s                      {: RESULT = s; :}
           ;
-StmtBrace ::= StmtBrace:s T_rbrace Stmt:rs    {: RESULT = new AST("Stmt", null, s, rs); :}
+StmtBrace ::= StmtBrace:s T_rbrace Stmt:rs    {: RESULT = new Statement(s, rs); :}
            | CompoundStmt:cs                  {: RESULT = cs; :}
            ;
-
-SingleStmt ::= Assignment:a       {: RESULT = a; :}
-            | FuncCall:f          {: RESULT = f; :}
-            | ReturnStmt:r        {: RESULT = r; :}
+SingleStmt ::= Assignment:a       {: RESULT = new Statement(a); :}
+            | FuncCall:f          {: RESULT = new Statement(f); :}
+            | ReturnStmt:r        {: RESULT = new Statement(r); :}
             ;
-CompoundStmt ::= T_lbrace Stmt:s      {: RESULT = new AST("CompoundStmt", null, s); :}
+CompoundStmt ::= T_lbrace Stmt:s      {: RESULT = new Statement(s); :}
               ;
 
-IfStmt ::= T_if T_lpar Cond:c T_rpar IfStmtSemi:_if     {: RESULT = new AST("IfStmtSemi", "if", c, _if); :}
-        | T_if T_lpar Cond:c T_rpar IfStmtBrace:_if     {: RESULT = new AST("IfStmtBrace", "if", c, _if); :}
+IfStmt ::= T_if T_lpar Cond:c T_rpar IfStmtSemi:_if     {: RESULT = new IfStmt(c, _if); :}
+        | T_if T_lpar Cond:c T_rpar IfStmtBrace:_if     {: RESULT = new IfStmt(c, _if); :}
         ;
-IfStmtSemi ::= SingleStmt:s T_semicolon ElseStmt:_if    {: RESULT = new AST("IfStmt", "else", s, _if); :}
-            | SingleStmt:s T_semicolon                  {: RESULT = s; :}
+IfStmtSemi ::= SingleStmt:s T_semicolon ElseStmt:_if    {: RESULT = new IfStmt(s, _if); :}
+            | SingleStmt:s T_semicolon                  {: RESULT = new IfStmt(s); :}
             ;
-IfStmtBrace ::= CompoundStmt:cs T_rbrace ElseStmt:_if   {: RESULT = new AST("IfStmt", "else", cs, _if); :}
-            | CompoundStmt:cs T_rbrace                  {: RESULT = cs; :}
+IfStmtBrace ::= CompoundStmt:cs T_rbrace ElseStmt:_if   {: RESULT = new IfStmt(cs, _if); :}
+            | CompoundStmt:cs T_rbrace                  {: RESULT = new IfStmt(cs); :}
             ;
 ElseStmt ::= T_else IfStmt:_if                          {: RESULT = _if; :}
-          | T_else SingleStmt:cs T_semicolon            {: RESULT = new AST("IfStmt", "else", cs); :}
-          | T_else CompoundStmt:cs T_rbrace             {: RESULT = new AST("IfStmt", "else", cs); :}
+          | T_else SingleStmt:cs T_semicolon            {: RESULT = new IfStmt(cs); :}
+          | T_else CompoundStmt:cs T_rbrace             {: RESULT = new IfStmt(cs); :}
           ;
 
-WhileStmt ::= T_while T_lpar Cond:c T_rpar CompoundStmt:s T_rbrace          {: RESULT = new AST("WhileStmt", null, c, s); :}
+WhileStmt ::= T_while T_lpar Cond:c T_rpar CompoundStmt:s T_rbrace          {: RESULT = new WhileStmt(c, s); :}
            ;
-ReturnStmt ::= T_return Expr:e            {: RESULT = new AST("Return", null, e); :}
-            | T_return                    {: RESULT = new AST("Return", null); :}
+ReturnStmt ::= T_return Expr:e            {: RESULT = new ReturnStmt(e); :}
+            | T_return                    {: RESULT = new ReturnStmt(null); :}
             ;
 
 Expr ::= T_lpar Expr:e T_rpar             {: RESULT = e; :}
-      | Expr:le Mops:op Expr:re           {: RESULT = new AST("Expr", null, new AST("Expr", null, le, op), re); :}
-      | MathSign:op Expr:e                {: RESULT = new AST("Expr", null, op, e); :}
+      | Expr:le Mops:op Expr:re           {: RESULT = new Mops(op, le, re); :}
+      | MathSign:op Expr:e                {: RESULT = new Mops(op, e); :}
       | FuncCall:f                        {: RESULT = f; :}
       | LValue:v                          {: RESULT = v; :}
       | Int_Const:n                       {: RESULT = n; :}
       | Char_Const:c                      {: RESULT = c; :}
+      | String_Const:s                    {: RESULT = s; :}
       ;
 
 // Assignments
-Assignment ::= LValue:lv T_eq Expr:e                    {: RESULT = new AST("Assignment", null, lv, e); :}
+Assignment ::= LValue:lv T_eq Expr:e                    {: RESULT = new Assignment(lv, e); :}
             ;
-LValue ::=  T_id:v T_lbracket Expr:e T_rbracket         {: RESULT = new AST("LValue", v, e, null); :}
-         |  T_id:v                                      {: RESULT = new AST("LValue", v); :}
-         |  String_Const:s                              {: RESULT = s; :}
+LValue ::=  T_id:v T_lbracket Expr:e T_rbracket         {: RESULT = new LValue(v, e); :}
+         |  T_id:v                                      {: RESULT = new LValue(v); :}
          ;
-FuncDef ::= T_id:id T_lpar FuncParams:fp T_rpar T_colon RType:rt CompoundStmt:cs                   {: RESULT = new AST("FuncDef", id, new AST("FuncParts", null, fp, rt), cs); :}
-         | T_id:id T_lpar FuncParams:fp T_rpar T_colon RType:rt LocalDef:ld CompoundStmt:cs        {: RESULT = new AST("FuncDef", id, new AST("FuncParts", null, fp, rt), new AST("FuncParts", null, ld, cs)); :}
-         | T_id:id T_lpar T_rpar T_colon RType:rt CompoundStmt:cs                                  {: RESULT = new AST("FuncDef", id, rt, cs); :}
-         | T_id:id T_lpar T_rpar T_colon RType:rt LocalDef:ld CompoundStmt:cs                      {: RESULT = new AST("FuncDef", id, new AST("FuncParts", null, rt, ld), cs); :}
+FuncDef ::= T_id:id T_lpar FuncParams:fp T_rpar T_colon RType:rt CompoundStmt:cs                   {: RESULT = new FuncDef(id, rt, cs, fp, null); :}
+         | T_id:id T_lpar FuncParams:fp T_rpar T_colon RType:rt LocalDef:ld CompoundStmt:cs        {: RESULT = new FuncDef(id, rt, cs, fp, ld); :}
+         | T_id:id T_lpar T_rpar T_colon RType:rt CompoundStmt:cs                                  {: RESULT = new FuncDef(id, rt, cs, null, null); :}
+         | T_id:id T_lpar T_rpar T_colon RType:rt LocalDef:ld CompoundStmt:cs                      {: RESULT = new FuncDef(id, rt, cs, null, ld); :}
          ;
-VariableDef ::= T_id:id T_colon DataType:t T_lbracket Int_Const:i T_rbracket {: RESULT = new AST("VariableDef", id, t, i); :}
-             | T_id:id T_colon DataType:t                                    {: RESULT = new AST("VariableDef", id, t); :}
+VariableDef ::= T_id:id T_colon DataType:t T_lbracket Int_Const:i T_rbracket {: t.setArray(i.getValue()); RESULT = new VariableDef(id, t); :}
+             | T_id:id T_colon DataType:t                                    {: RESULT = new VariableDef(id, t); :}
              ;
-LocalDef ::= FuncDef:f T_rbrace LocalDef:ld2        {: RESULT = new AST("LocalDef", null, f, ld2); :}
-          | FuncDef:f T_rbrace                      {: RESULT = new AST("LocalDef", null, f); :}
-          | VariableDef:v T_semicolon LocalDef:ld2  {: RESULT = new AST("LocalDef", null, v, ld2); :}
-          | VariableDef:v T_semicolon               {: RESULT = new AST("LocalDef", null, v); :}
+LocalDef ::= FuncDef:f T_rbrace LocalDef:ld2        {: RESULT = new LocalDef(f, ld2); :}
+          | FuncDef:f T_rbrace                      {: RESULT = new LocalDef(f, null); :}
+          | VariableDef:v T_semicolon LocalDef:ld2  {: RESULT = new LocalDef(v, ld2); :}
+          | VariableDef:v T_semicolon               {: RESULT = new LocalDef(v, null); :}
           ;
 
 // Conditions
-Cond ::= Expr:le Ops:op Expr:re          {: RESULT = new AST("CondOp", null, new AST("CondOp", null, le, op), re); :}
+Cond ::= Expr:le Ops:op Expr:re          {: RESULT = new Cond(new Ops(op, le, re)); :}
       |  T_lpar Cond:c T_rpar            {: RESULT = c; :}
-      |  T_not Cond:c                    {: RESULT = new AST("CondOp", null, new AST("Lops", "!"), c); :}
-      |  Cond:lc Lops:op Cond:rc         {: RESULT = new AST("CondOp", null, new AST("CondOp", null, lc, op), rc); :}
-      |  T_true                          {: RESULT = new AST("Boolean", true); :}
-      |  T_false                         {: RESULT = new AST("Boolean", false); :}
+      |  T_not Cond:c                    {: RESULT = new Cond(new Lops(Lops.Operator.NOT, c, null)); :}
+      |  Cond:lc Lops:op Cond:rc         {: RESULT = new Cond(new Lops(op, lc, rc)); :}
+      |  Bool_Const:b                    {: RESULT = new Cond(b); :}
       ;
 
 // Functions
-FuncParams ::= T_id:id T_colon Type:t T_comma FuncParams:fp                {: RESULT = new AST("FuncParams", id, t, fp); :}
-             | T_id:id T_colon T_reference Type:t T_comma FuncParams:fp    {: RESULT = new AST("FuncParams", id, new AST("Reference", null, t), fp); :}
-             | T_id:id T_colon Type:t                                      {: RESULT = new AST("FuncParams", id, t); :}
-             | T_id:id T_colon T_reference Type:t                          {: RESULT = new AST("FuncParams", id, new AST("Reference", null, t)); :}
+FuncParams ::= T_id:id T_colon Type:t T_comma FuncParams:fp                {: RESULT = new FuncParams(id, t, false, fp); :}
+             | T_id:id T_colon T_reference Type:t T_comma FuncParams:fp    {: RESULT = new FuncParams(id, t, true,  fp); :}
+             | T_id:id T_colon Type:t                                      {: RESULT = new FuncParams(id, t, false); :}
+             | T_id:id T_colon T_reference Type:t                          {: RESULT = new FuncParams(id, t, true);  :}
              ;
-FuncCall ::= T_id:id T_lpar ExprList:el T_rpar  {: RESULT = new AST("FuncCall", id, el); :}
-          | T_id:id T_lpar T_rpar               {: RESULT = new AST("FuncCall", id); :}
+
+FuncCall ::= T_id:id T_lpar ExprList:el T_rpar  {: RESULT = new FuncCall(id, el); :}
+          | T_id:id T_lpar T_rpar               {: RESULT = new FuncCall(id, null); :}
           ;
-ExprList ::= Expr:e T_comma ExprList:el         {: RESULT = new AST("ExprList", null, e, el); :}
-           | Expr:e                             {: RESULT = new AST("ExprList", null, e); :}
+ExprList ::= Expr:e T_comma ExprList:el         {: RESULT = new ExprList(e, el); :}
+           | Expr:e                             {: RESULT = new ExprList(e, null); :}
            ;
 
 // Data Types
-DataType ::= T_int                              {: RESULT = new AST("DataType", "int"); :}
-      | T_byte                                  {: RESULT = new AST("DataType", "byte"); :}
+DataType ::= T_int                              {: RESULT = DataType.Int(); :}
+      | T_byte                                  {: RESULT = DataType.Byte(); :}
       ;
 
 RType ::= DataType:t                            {: RESULT = t; :}
-      | T_proc                                  {: RESULT = new AST("DataType", "proc"); :}
+      | T_proc                                  {: RESULT = DataType.Proc(); :}
       ;
 
 Type ::= DataType:dt                            {: RESULT = dt; :}
-      | DataType:dt T_lbracket T_rbracket       {: AST r = new AST("DataType"); r.addChildren(dt, new AST("Array", null)); RESULT = r; :}
+      | DataType:dt T_lbracket T_rbracket       {: dt.setArray(0); RESULT = dt; :}
       ;
 
 // Operators
-Mops ::= T_plus                         {: RESULT = new AST("Mops", "+"); :}
-      |  T_minus                        {: RESULT = new AST("Mops", "-"); :}
-      |  T_times                        {: RESULT = new AST("Mops", "*"); :}
-      |  T_div                          {: RESULT = new AST("Mops", "/"); :}
-      |  T_mod                          {: RESULT = new AST("Mops", "%"); :}
+Mops ::= T_plus                         {: RESULT = Mops.Operator.ADD; :}
+      |  T_minus                        {: RESULT = Mops.Operator.SUB; :}
+      |  T_times                        {: RESULT = Mops.Operator.MUL; :}
+      |  T_div                          {: RESULT = Mops.Operator.DIV; :}
+      |  T_mod                          {: RESULT = Mops.Operator.MOD; :}
       ;
 
-Lops ::= T_and                          {: RESULT = new AST("Lops", "&"); :}
-      |  T_or                           {: RESULT = new AST("Lops", "|"); :}
-      ;
-Ops  ::= T_eq_check                     {: RESULT = new AST("Ops", "=="); :}
-      |  T_neq                          {: RESULT = new AST("Ops", "!="); :}
-      |  T_lt                           {: RESULT = new AST("Ops", "<"); :}
-      |  T_le                           {: RESULT = new AST("Ops", "<="); :}
-      |  T_gt                           {: RESULT = new AST("Ops", ">"); :}
-      |  T_ge                           {: RESULT = new AST("Ops", ">="); :}
+Lops ::= T_and                          {: RESULT = Lops.Operator.AND; :}
+      |  T_or                           {: RESULT = Lops.Operator.OR; :}
       ;
 
-MathSign ::= T_plus                     {: RESULT = new AST("MathSign", "+"); :}
-      |  T_minus                        {: RESULT = new AST("MathSign", "-"); :}
+Ops  ::= T_eq_check                     {: RESULT = Ops.Operator.EQ; :}
+      |  T_neq                          {: RESULT = Ops.Operator.NE; :}
+      |  T_lt                           {: RESULT = Ops.Operator.LT; :}
+      |  T_le                           {: RESULT = Ops.Operator.LE; :}
+      |  T_gt                           {: RESULT = Ops.Operator.GT; :}
+      |  T_ge                           {: RESULT = Ops.Operator.GE; :}
       ;
 
-Int_Const ::= T_num:n                   {: RESULT = new AST("Int", n); :}
+MathSign ::= T_plus                     {: RESULT = Mops.Operator.PLUS_SIGN; :}
+      |  T_minus                        {: RESULT = Mops.Operator.MINUS_SIGN; :}
+      ;
+
+Int_Const ::= T_num:n                   {: RESULT = new ConstInt(n); :}
            ;
 
-Char_Const ::= T_char:c                 {: RESULT = new AST("Char", c); :}
+Char_Const ::= T_char:c                 {: RESULT = new ConstChar(c); :}
             ;
 
-String_Const ::= T_string:s             {: RESULT = new AST("String", s); :}
+String_Const ::= T_string:s             {: RESULT = new ConstString(s); :}
               ;
 
+Bool_Const ::= T_true                   {: RESULT = new ConstBool(true); :}
+            | T_false                   {: RESULT = new ConstBool(false);:}
+            ;

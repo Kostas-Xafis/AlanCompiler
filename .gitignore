@@ -19,5 +19,5 @@ buildNumber.properties
 
 
 *.txt
-
+*.zip
 src/main/java/gr/hua/dit/compiler/Lexer.*

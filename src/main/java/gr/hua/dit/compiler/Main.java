@@ -1,10 +1,19 @@
 package gr.hua.dit.compiler;
 
-import java.io.*;
+import gr.hua.dit.compiler.ast.FuncParams;
+import gr.hua.dit.compiler.ast.Program;
+import gr.hua.dit.compiler.symbol.SymbolTable;
+import gr.hua.dit.compiler.types.DataType;
+import gr.hua.dit.compiler.types.FuncType;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
 
 public class Main {
 
@@ -28,47 +37,71 @@ public class Main {
         return argMap;
     }
 
-    private static void flattenLocalDef() {
-        ArrayList<AST<?>> LocalDefRoot = AST.getHangingRoots(AST.getNodes("LocalDef"));
-        LocalDefRoot.forEach(root -> {
-            root.traverseBranch("LocalDef", (node) -> {
-                root.addChildren(node.getLeft());
-                if (root != node) node.deref();
-            });
-            root.setLeft(null);
-            root.setRight(null);
-        });
-    }
+    public static void populateSymbolTable(SymbolTable tbl) {
+        tbl.addEntry("writeString", new FuncType(
+            new FuncParams("s", DataType.String(), true),
+            DataType.Proc())
+        );
 
-    private static void flattenExprList() {
-        ArrayList<AST<?>> ExprListRoot = AST.getHangingRoots(AST.getNodes("ExprList"));
-        ExprListRoot.forEach(root -> {
-            root.traverseBranch("ExprList", (node) -> {
-                root.addChildren(node.getLeft());
-                if (root != node) node.deref();
-            });
-            root.setLeft(null);
-            root.setRight(null);
-        });
-    }
+        tbl.addEntry("writeInteger", new FuncType(
+            new FuncParams("i", DataType.Int(), false),
+            DataType.Proc())
+        );
 
-    private static void flattenFuncParams() {
-        ArrayList<AST<?>> FuncParamsRoot = AST.getHangingRoots(AST.getNodes("FuncParams"));
-        FuncParamsRoot.forEach(root -> {
-            root.addChildren(new AST<>("FuncParam", root.getValue(), root.getLeft()));
-            root.traverseBranch("FuncParams", (node) -> {
-                if (root != node) {
-                    root.addChildren(node);
-                    node.deref();
-                }
-            });
-            root.setValue(null);
-            root.setLeft(null);
-            root.setRight(null);
-            root.getChildren().forEach(node -> {
-                node.setRight(null);
-            });
-        });
+        tbl.addEntry("writeChar", new FuncType(
+            new FuncParams("c", DataType.Char(), false),
+            DataType.Proc())
+        );
+
+        tbl.addEntry("writeByte", new FuncType(
+            new FuncParams("b", DataType.Byte(), false),
+            DataType.Proc())
+        );
+
+        tbl.addEntry("readString", new FuncType(
+            new FuncParams("n", DataType.Int(), false,
+                new FuncParams("s", DataType.String(), true)),
+            DataType.Proc())
+        );
+
+        tbl.addEntry("readInteger", new FuncType(DataType.Int()));
+
+        tbl.addEntry("readChar", new FuncType(DataType.Char()));
+
+        tbl.addEntry("readByte", new FuncType(DataType.Byte()));
+
+        tbl.addEntry("strlen", new FuncType(
+            new FuncParams("s", DataType.String(), true),
+            DataType.Int())
+        );
+
+        tbl.addEntry("strcmp", new FuncType(
+            new FuncParams("s1", DataType.String(), true,
+                new FuncParams("s2", DataType.String(), true)),
+            DataType.Int())
+        );
+
+        tbl.addEntry("strcat", new FuncType(
+            new FuncParams("s1", DataType.String(), true,
+                new FuncParams("s2", DataType.String(), true)),
+            DataType.String())
+        );
+
+        tbl.addEntry("strcpy", new FuncType(
+            new FuncParams("s1", DataType.String(), true,
+                new FuncParams("s2", DataType.String(), true)),
+            DataType.String())
+        );
+
+        tbl.addEntry("shrink", new FuncType(
+            new FuncParams("i", DataType.Int(), false),
+            DataType.Byte())
+        );
+
+        tbl.addEntry("extend", new FuncType(
+            new FuncParams("b", DataType.Byte(), false),
+            DataType.Int())
+        );
     }
 
     public static void main(String[] args) throws IOException {
@@ -90,43 +123,22 @@ public class Main {
         Lexer lexer = new Lexer(reader);
         Parser parser = new Parser(lexer);
 
-//        long startParse = System.currentTimeMillis();
+        Program astRoot = null;
         try {
-            AST<?> rootRes = (AST<?>) parser.parse().value;
-            if (flattenAST) {
-                flattenLocalDef();
-                flattenExprList();
-                flattenFuncParams();
-            }
+            astRoot = (Program) parser.parse().value;
+            SymbolTable tbl = new SymbolTable();
+            populateSymbolTable(tbl);
+            astRoot.sem(tbl);
+            System.out.println(astRoot.formattedString(0, 50));
         } catch(Exception e) {
             if (!isTest) {
-                System.err.println("Error: " + e);
+                System.err.println("Error: ");
+                e.printStackTrace();
             }
         } finally {
-//            long endParse = System.currentTimeMillis();
-//            System.out.println("Time to parse: " + (endParse - startParse) + "ms");
-
-            ArrayList<AST<?>> astNodes = AST.getAllNodes();
-
-//            long start = System.currentTimeMillis();
-            ArrayList<AST<?>> hangingRoots = AST.getHangingRoots();
-//            long end = System.currentTimeMillis();
-
-            if (isTest) {
-                // If there is only one hanging root and it is a function definition, then the program is correctly parsed
-                if (hangingRoots.size() == 1 && hangingRoots.get(0).getType().equals("FuncDef")) {
-                    System.out.println(0);
-                } else {
-                    System.out.println(1);
-                }
-            } else {
-                System.out.println("Total ast nodes: " + astNodes.size());
-//                System.out.println("Nodes : " + astNodes);
-                hangingRoots.forEach(root -> {
-                    System.out.println(root.formattedString(0, 35));
-                });
-            }
-//            System.out.println("Time to find hanging roots: " + (end - start) + "ms");
+//            if (astRoot != null) {
+//                System.out.println(astRoot.formattedString(0, 50));
+//            }
         }
     }
 }
