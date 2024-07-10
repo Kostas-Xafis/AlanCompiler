@@ -6,6 +6,7 @@ import gr.hua.dit.compiler.types.Type;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Optional;
 
 public class SymbolTable {
 
@@ -23,20 +24,24 @@ public class SymbolTable {
         openScope();
     }
 
-    public SymbolEntry lookup(String sym, Boolean shallow) {
+    public Optional<SymbolEntry> lookup(String sym, Boolean shallow) {
         if (shallow) {
-            return lookup(sym);
+            return Optional.ofNullable(lookupShallow(sym));
         } else {
-            return lookupRec(sym);
+            return Optional.ofNullable(lookupFull(sym));
         }
     }
 
-    public SymbolEntry lookup(String sym) {
+    public Optional<SymbolEntry> lookup(String sym) {
         return lookup(sym, false);
     }
 
+    public SymbolEntry lookupShallow(String sym){
+        return scopes.getFirst().get(sym);
+    }
+
     // recurse through all scopes
-    public SymbolEntry lookupRec(String sym) {
+    public SymbolEntry lookupFull(String sym) {
         // first scope in the list in the most recent
         for (Scope s : scopes) {
             SymbolEntry e = s.get(sym);

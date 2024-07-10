@@ -22,7 +22,7 @@ public class VariableDef extends ASTNode<String> {
 
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if variable is already defined
-        if (tbl.lookup(varName, true) != null) {
+        if (tbl.lookup(varName, true).isPresent()) {
             throw SemanticException.VariableAlreadyDefinedException(varName);
         }
         tbl.addEntry(varName, varType);

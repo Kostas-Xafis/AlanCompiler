@@ -89,9 +89,12 @@ public class DataType extends Type {
     public boolean equals(Type t) {
         if (t instanceof DataType) {
             DataType that = (DataType)t;
+            System.out.println("This: " + this.type + " : " + that.type);
+            System.out.println("This: " + this.isArray + " : " + that.isArray);
+            System.out.println("This: " + this.isAccessed + " : " + that.isAccessed);
             if (this.isAccessed == that.isAccessed) {
-                // If both base types are exposed or both are not exposed
-                return this.type == that.type;
+                // If both base types are exposed or not, then do full type check
+                return this.type == that.type && this.isArray == that.isArray;
             } else if (this.isArray == that.isArray) {
                 // Either one is accessed but both are arrays, the there is a type mismatch
                 return false;

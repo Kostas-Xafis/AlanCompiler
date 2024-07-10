@@ -7,6 +7,7 @@ import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class FuncCall extends Expr<FuncType> {
 
@@ -27,9 +28,9 @@ public class FuncCall extends Expr<FuncType> {
 
     public void sem(SymbolTable tbl) throws SemanticException {
         // Support for built-in functions is not implemented
-        SymbolEntry e = tbl.lookup(functionName);
-        if (e != null) {
-            FuncType funcType = (FuncType) e.getType();
+        Optional<SymbolEntry> e = tbl.lookup(functionName);
+        if (e.isPresent()) {
+            FuncType funcType = (FuncType) e.get().getType();
             this.getInferredType().setResult(funcType.getResult());
 
             // Check if the function is called with the correct amount of arguments
@@ -50,6 +51,10 @@ public class FuncCall extends Expr<FuncType> {
 
             // Check if the types of the arguments match the types of the function definition
             for (int i = 0; i < funcDefArgTypes.size(); i++) {
+                if (this.getValue().equals("swap")) {
+                    System.out.println("Def arg type: " + funcDefArgTypes.get(i));
+                    System.out.println("Call arg type: " + funcCallArgTypes.get(i));
+                }
                 if (!funcCallArgTypes.get(i).equals(funcDefArgTypes.get(i))) {
                     throw SemanticException.IncorrectFuncArgumentTypeException(tbl, functionName, i, funcCallArgTypes.get(i));
                 }

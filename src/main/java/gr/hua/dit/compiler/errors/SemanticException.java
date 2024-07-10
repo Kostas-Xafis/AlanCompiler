@@ -15,7 +15,7 @@ public class SemanticException extends Exception {
     }
 
     public static SemanticException IncorrectAmountOfFuncCallArgumentsException(SymbolTable tbl, String funcName, Integer argNum) {
-        FuncType ft = (FuncType) tbl.lookup(funcName).getType();
+        FuncType ft = (FuncType) tbl.lookup(funcName).get().getType();
         return new SemanticException(Error +
             "\n\t\tFunction `" + BashColors.Cyan(funcName) + "` called with wrong number of arguments" +
             BashColors.Green("\n\t\tExpected: " + ft.getArgTypes().size()) +
@@ -23,7 +23,7 @@ public class SemanticException extends Exception {
     }
 
     public static SemanticException IncorrectFuncArgumentTypeException(SymbolTable tbl, String funcName, Integer argIndex, Type gotType) {
-        FuncType ft = (FuncType) tbl.lookup(funcName).getType();
+        FuncType ft = (FuncType) tbl.lookup(funcName).get().getType();
         Type argType = ft.getArgTypes().get(argIndex);
         return new SemanticException(Error +
             "\n\t\tFunction `" + BashColors.Cyan(funcName) + "` called with wrong type of argument" +
@@ -72,7 +72,7 @@ public class SemanticException extends Exception {
     }
 
     public static SemanticException ArrayIndexOutOfBoundsException(SymbolTable tbl, String arrayName, Integer index) {
-        Integer arraySize = ((DataType) tbl.lookup(arrayName).getType()).getArraySize();
+        Integer arraySize = ((DataType) tbl.lookup(arrayName).get().getType()).getArraySize();
         return new SemanticException(Error +
             "\n\t\tArray `" + BashColors.Red(arrayName) + "` accessed with out of bounds index" +
             BashColors.Green("\n\t\tArray Size: " + arraySize) +

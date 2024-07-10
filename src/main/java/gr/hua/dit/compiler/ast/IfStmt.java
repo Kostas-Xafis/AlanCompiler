@@ -10,14 +10,14 @@ public class IfStmt extends Stmt {
     private Stmt else_stmt;
 
     public IfStmt(Stmt s1, Stmt s2) {
-        super(null);
+        super(null, s1, s2);
         this.setName("IfStmt");
         this.then_stmt = s1;
         this.else_stmt = s2;
     }
 
     public IfStmt(Cond c, IfStmt _if) {
-        super(null);
+        super(null, c, _if);
         this.setName("IfStmt");
         this.cond = c;
         this.if_stmt = _if;

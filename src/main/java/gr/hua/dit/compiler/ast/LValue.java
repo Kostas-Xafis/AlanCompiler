@@ -1,8 +1,11 @@
 package gr.hua.dit.compiler.ast;
 
 import gr.hua.dit.compiler.errors.SemanticException;
+import gr.hua.dit.compiler.symbol.SymbolEntry;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
+
+import java.util.Optional;
 
 public class LValue extends Expr<DataType> {
     private final String name;
@@ -31,7 +34,11 @@ public class LValue extends Expr<DataType> {
 
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if variable is already defined
-        DataType type = (DataType) tbl.lookup(getName(), true).getType();
+        Optional<SymbolEntry> entry = tbl.lookup(getName());
+        if (!entry.isPresent()) {
+            throw SemanticException.UndefinedVariableException(getName());
+        }
+        DataType type = (DataType) entry.get().getType();
         this.setInferredType(type);
 
         // Check if the variable is an array and if it is accessed correctly

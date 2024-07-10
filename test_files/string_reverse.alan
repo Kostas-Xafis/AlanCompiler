@@ -13,6 +13,6 @@ main () : proc
         r[i] = '\0';
     }
 { -- main
-    reverse("10");
+    reverse("Hello, World!\0");
     writeString(r);
 } -- main

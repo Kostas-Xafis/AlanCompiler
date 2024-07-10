@@ -129,7 +129,7 @@ public class Main {
             SymbolTable tbl = new SymbolTable();
             populateSymbolTable(tbl);
             astRoot.sem(tbl);
-            System.out.println(astRoot.formattedString(0, 50));
+            System.out.println(astRoot.formattedString(0, 100));
         } catch(Exception e) {
             if (!isTest) {
                 System.err.println("Error: ");

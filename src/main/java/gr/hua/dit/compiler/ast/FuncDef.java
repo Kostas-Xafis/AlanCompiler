@@ -36,7 +36,7 @@ public class FuncDef extends ASTNode<String> {
 
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if function is already defined
-        if (tbl.lookup(functionName) != null) {
+        if (tbl.lookup(functionName).isPresent()) {
             throw SemanticException.FunctionAlreadyDefinedException(functionName);
         }
         tbl.addEntry(functionName, funcType);
