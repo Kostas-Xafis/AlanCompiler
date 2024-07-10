@@ -1,6 +1,8 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
+import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 
 public class Statement extends Stmt {
@@ -57,22 +59,18 @@ public class Statement extends Stmt {
     }
 
     public void sem(SymbolTable tbl) throws SemanticException {
-        if (stmt instanceof Assignment) {
-            ((Assignment) stmt).sem(tbl);
-        } else if (stmt instanceof FuncCall) {
-            ((FuncCall) stmt).sem(tbl);
-        } else if (stmt instanceof ReturnStmt) {
-            ((ReturnStmt) stmt).sem(tbl);
-        } else if (stmt instanceof IfStmt) {
-            ((IfStmt) stmt).sem(tbl);
-        } else if (stmt instanceof WhileStmt) {
-            ((WhileStmt) stmt).sem(tbl);
-        } else {
-            ((Statement) stmt).sem(tbl);
-        }
-
+        stmt.sem(tbl);
         if (nextStmt != null) {
             nextStmt.sem(tbl);
+        }
+    }
+
+
+    public void compile(CompileContext cc) throws CompilerException {
+        stmt.compile(cc);
+
+        if (nextStmt != null) {
+            nextStmt.compile(cc);
         }
     }
 }

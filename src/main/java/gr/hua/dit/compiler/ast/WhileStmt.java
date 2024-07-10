@@ -21,11 +21,11 @@ public class WhileStmt extends Stmt {
         stmt.sem(tbl);
     }
 
-    public void codegen() {
+    public void compile() {
         LabelAddress labelTrue = IRHelper.newLabel();
         LabelAddress labelFalse = IRHelper.newLabel();
         System.out.println(labelTrue + ":");
-        cond.codegen();
+//        cond.compile();
         System.out.println("if " + cond.getAddress() + " goto " + labelTrue);
         System.out.println("goto " + labelFalse);
         System.out.println(labelFalse + ":");

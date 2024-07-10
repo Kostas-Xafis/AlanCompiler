@@ -1,10 +1,15 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
+import gr.hua.dit.compiler.irgen.CompileContext;
+import gr.hua.dit.compiler.irgen.Descriptor;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +39,13 @@ public class FuncDef extends ASTNode<String> {
         return functionName + "(" + args + ")" + " : " + funcType.getResult();
     }
 
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public FuncType getFuncDefType() {
+        return funcType;
+    }
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if function is already defined
         if (tbl.lookup(functionName).isPresent()) {
@@ -54,15 +66,32 @@ public class FuncDef extends ASTNode<String> {
         tbl.closeScope();
     }
 
-    public String getFunctionName() {
-        return functionName;
-    }
-
-    public ArrayList<Expr<?>> getArgsList() {
-        return args.getParamList(null);
-    }
-
-    public FuncType getFuncDefType() {
-        return funcType;
+    public void compile(CompileContext cc) throws CompilerException {
+        MethodNode prevMn = cc.getCurrentMethodNode();
+        if (!functionName.equals("main")) {
+            MethodNode mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, functionName, Descriptor.build(funcType), null, null);
+            mn.visitMaxs(2, 2);
+            cc.getClassNode().methods.add(mn);
+            cc.setCurrentMethodNode(mn);
+        }
+        cc.insertScope();
+//        cc.setFunctionName(functionName);
+//        cc.setFunctionType(funcType);
+//        cc.setFunctionArgs(args);
+//        cc.setFunctionLocalDef(localDef);
+//        cc.setFunctionCompoundStmt(compoundStmt);
+//        cc.compileFunction();
+        if (args != null) {
+            args.compile(cc, 0);
+        }
+        if (localDef != null) {
+            localDef.compile(cc);
+        }
+        compoundStmt.compile(cc);
+        if (!functionName.equals("main")) {
+            cc.getCurrentMethodNode().visitInsn(Opcodes.RETURN);
+        }
+        cc.setCurrentMethodNode(prevMn);
+        cc.removeScope();
     }
 }

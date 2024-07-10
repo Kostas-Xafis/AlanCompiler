@@ -1,6 +1,8 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
+import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.Type;
 
@@ -43,6 +45,19 @@ public class ExprList extends ASTNode {
         expr.sem(tbl);
         if (next != null) {
             next.sem(tbl);
+        }
+    }
+
+    @Override
+    public void compile(CompileContext cc) throws CompilerException {
+        if (expr instanceof LValue) {
+            ((LValue) expr).compile(cc, "load");
+        } else {
+            expr.compile(cc);
+        }
+
+        if (next != null) {
+            next.compile(cc);
         }
     }
 }

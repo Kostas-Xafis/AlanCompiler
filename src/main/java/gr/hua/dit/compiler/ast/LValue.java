@@ -1,9 +1,13 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
+import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolEntry;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.Optional;
 
@@ -61,6 +65,27 @@ public class LValue extends Expr<DataType> {
                 throw SemanticException.ArrayIndexMustBePositiveException(getName());
             }
         }
-//        System.out.println("LValue: " + getName() + ":" + type + " " + expr);
+    }
+
+    public void compile(CompileContext cc) throws CompilerException {
+        compile(cc, "load");
+    }
+
+    public void compile(CompileContext cc, String action) throws CompilerException {
+        System.out.println("Compiling LValue: " + name + " with action: " + action);
+        if (expr != null) {
+            expr.compile(cc);
+        }
+//        if (action.equals("load")) {
+//            cc.addInsn(expr == null ? cc.getLoadInsn(getName()) : cc.getArrayLoadInsn(getName()));
+//        } else if (action.equals("store")) {
+//            cc.addInsn(expr == null ? cc.getStoreInsn(getName()) : cc.getArrayStoreInsn(getName()));
+//        }
+        if (action.equals("load")) {
+            cc.loadLocalInt(name);
+        } else if (action.equals("store")) {
+            cc.storeLocalInt(name);
+//            cc.addInsn(new VarInsnNode(Opcodes.ISTORE, 400));
+        }
     }
 }

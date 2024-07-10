@@ -1,10 +1,16 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
+import gr.hua.dit.compiler.irgen.CompileContext;
+import gr.hua.dit.compiler.irgen.Descriptor;
 import gr.hua.dit.compiler.symbol.SymbolEntry;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
+import gr.hua.dit.library.Library;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.MethodInsnNode;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -13,6 +19,8 @@ public class FuncCall extends Expr<FuncType> {
 
     private final String functionName;
     private final ExprList args;
+
+    private String descriptor = null;
 
     public FuncCall(String id, ExprList args) {
         super(null, id, args);
@@ -51,16 +59,27 @@ public class FuncCall extends Expr<FuncType> {
 
             // Check if the types of the arguments match the types of the function definition
             for (int i = 0; i < funcDefArgTypes.size(); i++) {
-                if (this.getValue().equals("swap")) {
-                    System.out.println("Def arg type: " + funcDefArgTypes.get(i));
-                    System.out.println("Call arg type: " + funcCallArgTypes.get(i));
-                }
                 if (!funcCallArgTypes.get(i).equals(funcDefArgTypes.get(i))) {
                     throw SemanticException.IncorrectFuncArgumentTypeException(tbl, functionName, i, funcCallArgTypes.get(i));
                 }
             }
+            descriptor = Descriptor.build(funcType);
         } else {
             throw SemanticException.UndefinedFunctionException(functionName);
+        }
+    }
+
+    public void compile(CompileContext cc) throws CompilerException {
+        // Compile the function call
+        if (args != null) {
+            args.compile(cc);
+        }
+        if (Library.functionNames.contains(this.functionName)) {
+            String descriptor = Descriptor.build(Library.getFunction(this.functionName).getType());
+            cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
+            return ;
+        } else {
+            cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
         }
     }
 }

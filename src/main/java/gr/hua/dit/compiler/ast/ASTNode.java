@@ -1,6 +1,10 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
+import gr.hua.dit.compiler.errors.SemanticException;
 import gr.hua.dit.compiler.irgen.Address;
+import gr.hua.dit.compiler.irgen.CompileContext;
+import gr.hua.dit.compiler.symbol.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.function.Function;
@@ -155,5 +159,11 @@ public class ASTNode<T> {
         return addr;
     }
 
-    public void codegen() {}
+    public void sem(SymbolTable tbl) throws SemanticException {
+        throw new SemanticException("Semantic method not implemented for " + this.name);
+    }
+
+    public void compile(CompileContext cc) throws CompilerException {
+        throw new CompilerException("Compile method not implemented for " + this.name);
+    }
 }

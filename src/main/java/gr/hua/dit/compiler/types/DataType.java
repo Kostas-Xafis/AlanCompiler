@@ -37,10 +37,16 @@ public class DataType extends Type {
     }
 
     private final DataTypeEnum type;
+
+    private Boolean isRef = false;
+
+    // Array properties
     private Boolean isArray = false;
     private Boolean isAccessed = false;
     private int arraySize = -1;
-    private Boolean isRef = false;
+
+    // Char property
+    private Boolean isHex = false;
 
     public DataType(DataTypeEnum e, Integer s) {
         type = e;
@@ -63,15 +69,9 @@ public class DataType extends Type {
     public void setAccessed(Boolean accessed) {
         isAccessed = accessed;
     }
-    public Boolean isAccessed() {
-        return isAccessed;
-    }
 
     public void setRef(Boolean ref) {
         isRef = ref;
-    }
-    public Boolean getRef() {
-        return isRef;
     }
 
     public Integer getArraySize() {
@@ -82,6 +82,7 @@ public class DataType extends Type {
         return this;
     }
 
+
     public String toString() {
         return type.toString() + (isArray && !isAccessed ? "[]" : "");
     }
@@ -89,9 +90,6 @@ public class DataType extends Type {
     public boolean equals(Type t) {
         if (t instanceof DataType) {
             DataType that = (DataType)t;
-            System.out.println("This: " + this.type + " : " + that.type);
-            System.out.println("This: " + this.isArray + " : " + that.isArray);
-            System.out.println("This: " + this.isAccessed + " : " + that.isAccessed);
             if (this.isAccessed == that.isAccessed) {
                 // If both base types are exposed or not, then do full type check
                 return this.type == that.type && this.isArray == that.isArray;

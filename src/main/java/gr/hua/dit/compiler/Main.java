@@ -43,11 +43,6 @@ public class Main {
             DataType.Proc())
         );
 
-        tbl.addEntry("writeInteger", new FuncType(
-            new FuncParams("i", DataType.Int(), false),
-            DataType.Proc())
-        );
-
         tbl.addEntry("writeChar", new FuncType(
             new FuncParams("c", DataType.Char(), false),
             DataType.Proc())
@@ -106,10 +101,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         HashMap<String, String> argMap = parseArgs(args);
-        Boolean willExecute = argMap.containsKey("-x");
-        Boolean isTest = argMap.containsKey("-t");
-        Boolean hasInputFile = argMap.containsKey("-f");
-        Boolean flattenAST = argMap.containsKey("-flat");
+        boolean willExecute = argMap.containsKey("-x");
+        boolean isTest = argMap.containsKey("-t");
+        boolean hasInputFile = argMap.containsKey("-f");
         String path = argMap.get("-f");
 
         if (hasInputFile && !path.endsWith(".alan")) {
@@ -130,6 +124,9 @@ public class Main {
             populateSymbolTable(tbl);
             astRoot.sem(tbl);
             System.out.println(astRoot.formattedString(0, 100));
+            if (willExecute) {
+                astRoot.compile(tbl, new File(path).getName());
+            }
         } catch(Exception e) {
             if (!isTest) {
                 System.err.println("Error: ");
