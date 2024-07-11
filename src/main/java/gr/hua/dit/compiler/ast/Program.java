@@ -86,6 +86,13 @@ public class Program extends ASTNode {
 
         context.setCurrentMethodNode(mn);
 
+        if (!main.getFunctionName().equals("main")) {
+            MethodNode mn2 = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, main.getFunctionName(), main.getDescriptor(), null, null);
+            context.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, cn.name, main.getFunctionName(), main.getDescriptor(), false));
+            context.addInsn(new InsnNode(Opcodes.RETURN));
+            context.setCurrentMethodNode(mn2);
+        }
+
         main.compile(context);
 
         context.addInsn(new InsnNode(Opcodes.RETURN));
@@ -94,14 +101,20 @@ public class Program extends ASTNode {
         mn.maxStack = 128;
         cn.methods.add(mn);
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
-        TraceClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
-        cn.accept(cv);
+        try {
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);
+            TraceClassVisitor cv = new TraceClassVisitor(cw, new PrintWriter(System.out));
+            cn.accept(cv);
 
-        byte code[] = cw.toByteArray();
+            byte code[] = cw.toByteArray();
 
-        FileOutputStream fos = new FileOutputStream("./MiniBasic.class");
-        fos.write(code);
-        fos.close();
+            FileOutputStream fos = new FileOutputStream("./MiniBasic.class");
+            fos.write(code);
+            fos.close();
+        } catch (Exception e) {
+            TraceClassVisitor displayCv = new TraceClassVisitor(cn, new PrintWriter(System.out));
+            cn.accept(displayCv);
+            e.printStackTrace();
+        }
     }
 }

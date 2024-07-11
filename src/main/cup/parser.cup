@@ -88,8 +88,8 @@ SingleStmt ::= Assignment:a       {: RESULT = new Statement(a); :}
 CompoundStmt ::= T_lbrace Stmt:s      {: RESULT = new Statement(s); :}
               ;
 
-IfStmt ::= T_if T_lpar Cond:c T_rpar IfStmtSemi:_if     {: RESULT = new IfStmt(c, _if); :}
-        | T_if T_lpar Cond:c T_rpar IfStmtBrace:_if     {: RESULT = new IfStmt(c, _if); :}
+IfStmt ::= T_if T_lpar Cond:c T_rpar IfStmtSemi:_if     {: RESULT = _if; _if.setCond(c);  :}
+        | T_if T_lpar Cond:c T_rpar IfStmtBrace:_if     {: RESULT = _if; _if.setCond(c);  :}
         ;
 IfStmtSemi ::= SingleStmt:s T_semicolon ElseStmt:_if    {: RESULT = new IfStmt(s, _if); :}
             | SingleStmt:s T_semicolon                  {: RESULT = new IfStmt(s); :}

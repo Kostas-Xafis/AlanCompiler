@@ -84,4 +84,35 @@ public class CompileContext {
         varLocation.remove(ScopeLevel);
         ScopeLevel--;
     }
+
+//    private static int tempCounter = 0;
+//    public static Address newTemp() {
+//        tempCounter++;
+//        return new VarAddress("t" + tempCounter);
+//    }
+
+    private static int labelCounter = 0;
+    public static LabelNode newLabel() {
+        return new LabelNode();
+    }
+
+    private LabelNode exitLabel;
+    public void setExitLabel(LabelNode exitLabel) {
+        this.exitLabel = exitLabel;
+    }
+
+    public LabelNode getExitLabel() {
+        return exitLabel;
+    }
+
+    // Inverted or not logic for simplifying the code
+    private boolean ifstmtLogic = false;
+    public void invertIfStmtLogic() {
+        ifstmtLogic = !ifstmtLogic;
+    }
+
+    public boolean getIfStmtLogic() {
+        return ifstmtLogic;
+    }
+
 }

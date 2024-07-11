@@ -1,0 +1,1 @@
+./run.sh && java MiniBasic

@@ -87,8 +87,9 @@ public class Mops extends Expr<DataType> {
             l.compile(cc);
             r.compile(cc);
             cc.addInsn(new InsnNode(opcode));
-        } else {
+        } else if (op == Operator.MINUS_SIGN) {
             l.compile(cc);
+            cc.addInsn(new InsnNode(opcode));
         }
     }
 }

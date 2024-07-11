@@ -10,7 +10,12 @@ public class ConstString extends Expr<DataType> {
 
     public ConstString(String value) {
         super(DataType.String(), value);
-        this.value = value.substring(1, value.length() - 1);
+        this.value = value.substring(1, value.length() - 1)
+            .replace("\\n", "\n")
+            .replace("\\t", "\t")
+            .replace("\\\"", "\"")
+            .replace("\\\\", "\\");
+        System.out.println("ConstString: " + this.value + " length: " + this.value.length());
         this.setName("String_Const");
     }
 

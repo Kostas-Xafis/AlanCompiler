@@ -6,7 +6,6 @@ main () : proc
     }
 {
     x = 20;
-    writeString("Hello, world!\n");
     writeInteger(x);
     foo(x, 5, 5);
 }

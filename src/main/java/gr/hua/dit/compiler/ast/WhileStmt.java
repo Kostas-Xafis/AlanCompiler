@@ -26,8 +26,8 @@ public class WhileStmt extends Stmt {
         LabelAddress labelFalse = IRHelper.newLabel();
         System.out.println(labelTrue + ":");
 //        cond.compile();
-        System.out.println("if " + cond.getAddress() + " goto " + labelTrue);
-        System.out.println("goto " + labelFalse);
-        System.out.println(labelFalse + ":");
+//        System.out.println("if " + cond.getAddress() + " goto " + labelTrue);
+//        System.out.println("goto " + labelFalse);
+//        System.out.println(labelFalse + ":");
     }
 }

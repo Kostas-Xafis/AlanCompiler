@@ -58,6 +58,10 @@ public class Statement extends Stmt {
         this.nextStmt = next;
     }
 
+    public String toString() {
+        return stmt.toString() + (nextStmt != null ? nextStmt.toString() : "");
+    }
+
     public void sem(SymbolTable tbl) throws SemanticException {
         stmt.sem(tbl);
         if (nextStmt != null) {

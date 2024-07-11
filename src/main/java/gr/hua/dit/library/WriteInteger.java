@@ -1,12 +1,10 @@
 package gr.hua.dit.library;
 
-import com.sun.org.apache.bcel.internal.generic.LoadInstruction;
 import gr.hua.dit.compiler.ast.FuncParams;
 import gr.hua.dit.compiler.irgen.Descriptor;
 import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
-import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 

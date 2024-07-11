@@ -77,7 +77,6 @@ public class FuncCall extends Expr<FuncType> {
         if (Library.functionNames.contains(this.functionName)) {
             String descriptor = Descriptor.build(Library.getFunction(this.functionName).getType());
             cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
-            return ;
         } else {
             cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
         }

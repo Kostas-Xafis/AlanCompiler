@@ -9,6 +9,8 @@ import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ public class FuncDef extends ASTNode<String> {
     private final FuncType funcType;
     private final LocalDef localDef;
     private final Statement compoundStmt;
+
+    private String descriptor;
 
     public FuncDef(String id, Type returnType, Statement CompoundStmt, FuncParams args, LocalDef localDef) {
         super("FuncDef", id);
@@ -46,6 +50,11 @@ public class FuncDef extends ASTNode<String> {
     public FuncType getFuncDefType() {
         return funcType;
     }
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
     public void sem(SymbolTable tbl) throws SemanticException {
         // Check if function is already defined
         if (tbl.lookup(functionName).isPresent()) {
@@ -63,6 +72,7 @@ public class FuncDef extends ASTNode<String> {
                 throw SemanticException.NoReturnStatementException(functionName);
             }
         }
+        descriptor = Descriptor.build(funcType);
         tbl.closeScope();
     }
 
@@ -70,17 +80,11 @@ public class FuncDef extends ASTNode<String> {
         MethodNode prevMn = cc.getCurrentMethodNode();
         if (!functionName.equals("main")) {
             MethodNode mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, functionName, Descriptor.build(funcType), null, null);
-            mn.visitMaxs(2, 2);
+            mn.visitMaxs(4, 4);
             cc.getClassNode().methods.add(mn);
             cc.setCurrentMethodNode(mn);
         }
         cc.insertScope();
-//        cc.setFunctionName(functionName);
-//        cc.setFunctionType(funcType);
-//        cc.setFunctionArgs(args);
-//        cc.setFunctionLocalDef(localDef);
-//        cc.setFunctionCompoundStmt(compoundStmt);
-//        cc.compileFunction();
         if (args != null) {
             args.compile(cc, 0);
         }
@@ -91,6 +95,7 @@ public class FuncDef extends ASTNode<String> {
         if (!functionName.equals("main")) {
             cc.getCurrentMethodNode().visitInsn(Opcodes.RETURN);
         }
+
         cc.setCurrentMethodNode(prevMn);
         cc.removeScope();
     }
