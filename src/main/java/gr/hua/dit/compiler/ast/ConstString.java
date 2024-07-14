@@ -19,7 +19,6 @@ public class ConstString extends Expr<DataType> {
             .replace("\\0", "\0")
             .replace("\\\"", "\"")
             .replace("\\\\", "\\");
-        System.out.println("ConstString: " + this.value + " length: " + this.value.length());
         this.setName("String_Const");
     }
 
@@ -35,6 +34,6 @@ public class ConstString extends Expr<DataType> {
     @Override
     public void compile(CompileContext cc) throws CompilerException {
         cc.addInsn(new LdcInsnNode(value));
-        cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", "stringToArrayList", "(Ljava/lang/String;)Ljava/util/ArrayList;", false));
+        cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, cc.getClassNode().name, "stringToArrayList", "(Ljava/lang/String;)Ljava/util/ArrayList;", false));
     }
 }

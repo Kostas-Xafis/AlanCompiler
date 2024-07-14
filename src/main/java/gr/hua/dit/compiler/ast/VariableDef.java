@@ -34,7 +34,6 @@ public class VariableDef extends ASTNode<String> {
     }
 
     public void compile(CompileContext cc) throws CompilerException {
-        System.out.println("Compiling variable: " + varName + " : " + varType);
         cc.addLocal(varName, varType);
     }
 

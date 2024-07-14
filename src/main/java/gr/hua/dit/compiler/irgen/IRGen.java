@@ -102,7 +102,6 @@ public class IRGen {
         typeCast("Byte");
         cc.addInsn(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/lang/Byte", "intValue", "()I"));
         cc.addInsn(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V"));
-//        cc.addInsn(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V"));
 
         // size--
         cc.addInsn(new VarInsnNode(Opcodes.ILOAD, 2));

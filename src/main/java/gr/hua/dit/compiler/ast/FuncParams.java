@@ -58,7 +58,6 @@ public class FuncParams extends Expr {
     }
 
     public void compile(CompileContext cc) throws CompilerException {
-        System.out.println("Compiling FuncParams: " + name + " with type: " + getInferredType());
         cc.addLocal(name, (DataType) getInferredType());
         if (next != null) {
             next.compile(cc);

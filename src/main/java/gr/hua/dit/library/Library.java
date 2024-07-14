@@ -11,11 +11,12 @@ public class Library {
                 WriteChar.name,
                 WriteInteger.name,
                 WriteString.name,
-                ReadByte.name,
+//                ReadByte.name,
                 ReadChar.name,
                 ReadInteger.name,
                 ReadString.name,
                 Strlen.name
+//                Strcmp.name
             )
     );
 
@@ -32,6 +33,7 @@ public class Library {
                 new ReadString(),
                 new StringToArrayList(),
                 new Strlen()
+//                new Strcmp()
             )
         );
     }

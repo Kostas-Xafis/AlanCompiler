@@ -15,7 +15,7 @@ public class ReadInteger extends LangInternals {
     private Type type = new FuncType(DataType.Int());
 
 
-    // Compiliation of read integer function
+    // Compilation of read integer function
     public void compile(CompileContext cc) {
         String descriptor = Descriptor.build(type);
         MethodNode mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, name, descriptor, null, null);

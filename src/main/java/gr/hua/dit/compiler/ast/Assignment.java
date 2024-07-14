@@ -28,7 +28,6 @@ public class Assignment extends ASTNode {
     }
 
     public void sem(SymbolTable tbl) throws SemanticException {
-//        System.out.println("Assignment pre sem: " + lvalue + " = " + expr);
         lvalue.sem(tbl);
         expr.sem(tbl);
         if (expr instanceof FuncCall) {

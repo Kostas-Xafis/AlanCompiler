@@ -21,7 +21,7 @@ public class FuncCall extends Expr<FuncType> {
     private final String functionName;
     private final ExprList args;
 
-    private String descriptor = null;
+    private FuncType funcType;
 
     public FuncCall(String id, ExprList args) {
         super(null, id, args);
@@ -39,7 +39,7 @@ public class FuncCall extends Expr<FuncType> {
         // Support for built-in functions is not implemented
         Optional<SymbolEntry> e = tbl.lookup(functionName);
         if (e.isPresent()) {
-            FuncType funcType = (FuncType) e.get().getType();
+            funcType = (FuncType) e.get().getType();
             this.getInferredType().setResult(funcType.getResult());
 
             // Check if the function is called with the correct amount of arguments
@@ -64,7 +64,6 @@ public class FuncCall extends Expr<FuncType> {
                     throw SemanticException.IncorrectFuncArgumentTypeException(tbl, functionName, i, funcCallArgTypes.get(i));
                 }
             }
-            descriptor = Descriptor.build(funcType);
         } else {
             throw SemanticException.UndefinedFunctionException(functionName);
         }
@@ -76,11 +75,15 @@ public class FuncCall extends Expr<FuncType> {
             args.compile(cc);
         }
         LangInternals func = Library.getFunction(functionName);
+        String className = cc.getClassNode().name;
         if (func != null) {
+            System.out.println("Function " + functionName + " is a built-in function");
             String descriptor = Descriptor.build(func.getType());
-            cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
+            cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, className, this.functionName, descriptor, false));
         } else {
-            cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
+            System.out.println("Function type is " + funcType);
+            String descriptor = Descriptor.build(funcType);
+            cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, className, this.functionName, descriptor, false));
         }
     }
 }

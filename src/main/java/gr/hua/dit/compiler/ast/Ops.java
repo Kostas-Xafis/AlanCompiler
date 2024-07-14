@@ -80,7 +80,6 @@ public class Ops extends Expr {
                 code = (logic * Opcodes.IF_ICMPGE) + (((logic + 1) % 2) * Opcodes.IF_ICMPLT);
                 break;
         }
-        System.out.println("Ops: " + op + " " + code);
         cc.addInsn(new JumpInsnNode(code, exit));
     }
 }

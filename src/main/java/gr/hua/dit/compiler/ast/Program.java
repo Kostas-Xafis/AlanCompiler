@@ -3,6 +3,7 @@ package gr.hua.dit.compiler.ast;
 import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
 import gr.hua.dit.compiler.irgen.CompileContext;
+import gr.hua.dit.compiler.irgen.Descriptor;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.library.LangInternals;
@@ -37,7 +38,6 @@ public class Program extends ASTNode {
     }
 
     public void compile(SymbolTable tbl, String sourceFile) throws IOException, CompilerException {
-        System.out.println("Compiling " + sourceFile);
         ClassNode cn = new ClassNode();
         CompileContext context = new CompileContext(cn);
         context.setSymbolTable(tbl);
@@ -46,8 +46,6 @@ public class Program extends ASTNode {
         cn.name = "MiniBasic";
         cn.sourceFile = sourceFile;
         cn.superName = "java/lang/Object";
-        cn.fields.add(new FieldNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC,
-            "theVars", "[I" , null, null));
 
         MethodNode mn;
         {
@@ -60,17 +58,6 @@ public class Program extends ASTNode {
             mn.maxStack = 1;
             cn.methods.add(mn);
         }
-        {
-            // static initializer
-            mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "<clinit>", "()V", null, null);
-            mn.instructions.add(new VarInsnNode(Opcodes.BIPUSH, 25));
-            mn.instructions.add(new VarInsnNode(Opcodes.NEWARRAY, Opcodes.T_INT));
-            mn.instructions.add(new FieldInsnNode(Opcodes.PUTSTATIC, cn.name, "theVars", "[I"));
-            mn.instructions.add(new InsnNode(Opcodes.RETURN));
-            mn.maxLocals = 1;
-            mn.maxStack = 1;
-            cn.methods.add(mn);
-        }
 
         context.setClassNode(cn);
 
@@ -78,7 +65,7 @@ public class Program extends ASTNode {
             try {
                 func.compile(context);
             } catch (UnsupportedOperationException e) {
-                System.err.println(e.getMessage() + " in " + func.getName());
+//                System.err.println(e.getMessage() + " in " + func.getName());
             }
         }
 
@@ -88,8 +75,10 @@ public class Program extends ASTNode {
         context.constructHeap();
 
         if (!main.getFunctionName().equals("main")) {
-            MethodNode mn2 = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, main.getFunctionName(), main.getDescriptor(), null, null);
-            context.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, cn.name, main.getFunctionName(), main.getDescriptor(), false));
+            String descriptor = Descriptor.build(main.getFuncDefType());
+            System.out.println("Main function is not named main: " + main);
+            MethodNode mn2 = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, main.getFunctionName(), descriptor, null, null);
+            context.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, cn.name, main.getFunctionName(), descriptor, false));
             context.addInsn(new InsnNode(Opcodes.RETURN));
             context.setCurrentMethodNode(mn2);
         }
@@ -97,7 +86,6 @@ public class Program extends ASTNode {
         main.compile(context);
 
         context.addInsn(new InsnNode(Opcodes.RETURN));
-//        mn.maxLocals = context.getNumberOfTemps();
         mn.maxLocals = 20;
         mn.maxStack = 128;
         cn.methods.add(mn);
@@ -109,7 +97,7 @@ public class Program extends ASTNode {
 
             byte code[] = cw.toByteArray();
 
-            FileOutputStream fos = new FileOutputStream("./MiniBasic.class");
+            FileOutputStream fos = new FileOutputStream("./class_output/" + cn.name + ".class");
             fos.write(code);
             fos.close();
         } catch (Exception e) {

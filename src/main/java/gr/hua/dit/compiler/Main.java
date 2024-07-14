@@ -64,7 +64,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         HashMap<String, String> argMap = parseArgs(args);
         boolean willExecute = argMap.containsKey("-x");
-        boolean isTest = argMap.containsKey("-t");
         boolean hasInputFile = argMap.containsKey("-f");
         String path = argMap.get("-f");
 
@@ -85,19 +84,16 @@ public class Main {
             SymbolTable tbl = new SymbolTable();
             populateSymbolTable(tbl);
             astRoot.sem(tbl);
-            System.out.println(astRoot.formattedString(0, 100));
+
             if (willExecute) {
+//                System.out.println(astRoot.formattedString(0, 100));
                 astRoot.compile(tbl, new File(path).getName());
+            } else {
+                System.out.println(astRoot.formattedString(0, 100));
             }
         } catch(Exception e) {
-            if (!isTest) {
-                System.err.println("Error: ");
-                e.printStackTrace();
-            }
-        } finally {
-//            if (astRoot != null) {
-//                System.out.println(astRoot.formattedString(0, 50));
-//            }
+            System.err.println("Error: ");
+            e.printStackTrace();
         }
     }
 }

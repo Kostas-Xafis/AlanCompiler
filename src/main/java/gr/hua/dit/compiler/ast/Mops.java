@@ -85,7 +85,6 @@ public class Mops extends Expr<DataType> {
                 throw new CompilerException("Unknown operator: " + op);
         }
         if (r != null) {
-            System.out.println("Mops compile: " + l + op + ":" + opcode + " " + r);
             if (opcode == Opcodes.ISUB) {
                 l.compile(cc);
                 cc.invertMathOpsSign();

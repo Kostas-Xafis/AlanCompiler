@@ -16,7 +16,6 @@ public class IfStmt extends Stmt {
 
     public IfStmt(Stmt s1, IfStmt s2) {
         super(null, s1, s2);
-        System.out.println("IfStmt init");
         this.setName("IfStmt");
         this.if_body = s1;
         this.else_stmt = s2;
@@ -24,7 +23,6 @@ public class IfStmt extends Stmt {
 
     public IfStmt(Stmt s1) {
         super(null, null, s1);
-        System.out.println("IfStmtBody init");
         this.setName("IfStmtBody");
         this.if_body = s1;
     }
@@ -49,7 +47,6 @@ public class IfStmt extends Stmt {
         cc.setExitLabel(labelFalse);
 
         if (cond != null) {
-            System.out.println("if " + cond);
             cond.compile(cc);
         }
 

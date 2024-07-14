@@ -15,14 +15,10 @@ public class ReadByte extends LangInternals {
 
     private Type type = new FuncType(DataType.Byte());
 
-
     public void compile(CompileContext cc) {
         String descriptor = Descriptor.build(type);
         MethodNode mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, name, descriptor, null, null);
-//        mn.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"));
-//        mn.instructions.add(new VarInsnNode(Opcodes.ILOAD, 0));
-//        mn.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", descriptor, false));
-        mn.instructions.add(new InsnNode(Opcodes.RETURN));
+        mn.instructions.add(new InsnNode(Opcodes.ARETURN));
         mn.maxLocals = 1;
         mn.maxStack = 2;
 

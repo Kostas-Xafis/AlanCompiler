@@ -74,13 +74,11 @@ public class LValue extends Expr<DataType> {
     }
 
     public void compile(CompileContext cc, String action, Expr insertedValue) throws CompilerException {
-//        System.out.println("Compiling LValue: " + this + " with action: " + action);
         if (this.getInferredType().isAccessed()) {
             if (action.equals("load")) {
                 // Need to implement it here too
                 cc.loadLocal(name, this.getInferredType(), expr);
             } else if (action.equals("store")) {
-                System.out.println("Storing type: " + this.getInferredType());
                 cc.storeLocal(name, this.getInferredType(), insertedValue, expr);
             }
         } else {

@@ -21,7 +21,6 @@ public class ConstChar extends Expr<DataType> {
 
     public void compile(CompileContext cc) throws CompilerException {
         // In case of single letter chars
-        System.out.println("Compiling ConstChar: " + value + " with length: " + value.length());
         if (value.length() == 1) {
             cc.addInsn(new VarInsnNode(Opcodes.BIPUSH, value.charAt(0)));
         } else if (value.startsWith("\\") && value.charAt(1) != 'x') {

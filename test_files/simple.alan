@@ -1,8 +1,0 @@
-main () : proc
-    x : int;
-{
-    x = 20;
-    if (x < 10) {
-        writeString("x is less than 10\n");
-    }
-}

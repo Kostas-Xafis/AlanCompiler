@@ -63,7 +63,6 @@ public class CompileContext {
     }
 
     public void addLocal(String name, DataType type) {
-        System.out.println("Adding local: " + name + " : " + type);
         int localIndex = counters.get(ScopeLevel);
         if (type.equals(DataType.StringType)) {
             // if it's not a reference type, we need to create a new ArrayList
@@ -120,7 +119,6 @@ public class CompileContext {
 
     public void storeLocal(String name, DataType dt, Expr insertedValue, Expr accessorNode) throws CompilerException {
         // Find the variable in the current scope
-        System.out.println("" + varLocation.get(ScopeLevel));
         Integer index = varLocation.get(ScopeLevel).get(name);
         Optional<SymbolEntry> s = symbolTable.lookup(name);
 

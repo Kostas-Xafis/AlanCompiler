@@ -72,12 +72,10 @@ public class FuncDef extends ASTNode<String> {
                 throw SemanticException.NoReturnStatementException(functionName);
             }
         }
-        descriptor = Descriptor.build(funcType);
         tbl.closeScope();
     }
 
     public void compile(CompileContext cc) throws CompilerException {
-        System.out.println("Compiling function: " + functionName + " with type: " + funcType);
         MethodNode prevMn = cc.getCurrentMethodNode();
         LabelNode earlyExit = CompileContext.newLabel();
         LabelNode prevEarlyExit = cc.getEarlyExitLabel();
