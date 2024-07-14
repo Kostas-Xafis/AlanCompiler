@@ -19,12 +19,10 @@ import java_cup.runtime.Symbol;
     private StringBuffer sb = new StringBuffer();
 
     private Symbol createSymbol(int type) {
-//        System.out.println("Matched string: \"" + yytext() + "\"" + " with type: " + Symbols.terminalNames[type]);
         return new Symbol(type, yyline+1, yycolumn+1);
     }
 
     private Symbol createSymbol(int type, Object value) {
-//        System.out.println("Matched string: \"" + yytext() + "\"" + " with type: " + Symbols.terminalNames[type] + " and value: " + value);
         return new Symbol(type, yyline+1, yycolumn+1, value);
     }
 %}

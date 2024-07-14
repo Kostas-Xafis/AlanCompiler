@@ -54,26 +54,25 @@
               <target>8</target>
           </configuration>
       </plugin>
-<!-- Since I finished with the first 2 parts of the project I don't need this part in my compilation -->
-<!--      <plugin>-->
-<!--        <groupId>de.jflex</groupId>-->
-<!--        <artifactId>jflex-maven-plugin</artifactId>-->
-<!--        <version>${jflex.version}</version>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <goals>-->
-<!--              <goal>generate</goal>-->
-<!--            </goals>-->
-<!--            <configuration>-->
-<!--              <outputDirectory>src/main/java</outputDirectory>-->
-<!--              <lexDefinitions>-->
-<!--                  <lexDefinition>src/main/jflex</lexDefinition>-->
-<!--              </lexDefinitions>-->
-<!--              <verbose>false</verbose>-->
-<!--            </configuration>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
+      <plugin>
+        <groupId>de.jflex</groupId>
+        <artifactId>jflex-maven-plugin</artifactId>
+        <version>${jflex.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>src/main/java</outputDirectory>
+              <lexDefinitions>
+                  <lexDefinition>src/main/jflex</lexDefinition>
+              </lexDefinitions>
+              <verbose>false</verbose>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>com.github.vbmacher</groupId>
         <artifactId>cup-maven-plugin</artifactId>
