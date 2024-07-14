@@ -35,13 +35,7 @@ public class VariableDef extends ASTNode<String> {
 
     public void compile(CompileContext cc) throws CompilerException {
         System.out.println("Compiling variable: " + varName + " : " + varType);
-        if (varType.equals(DataType.IntType)) {
-            cc.addLocalInt(varName);
-        } else if (varType.equals(DataType.BoolType)) {
-//            cc.addLocalBool(varName);
-        } else {
-            throw new CompilerException("Unsupported variable type: " + varType);
-        }
+        cc.addLocal(varName, varType);
     }
 
     public String getVariableName() {

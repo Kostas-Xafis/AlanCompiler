@@ -57,13 +57,14 @@ public class Mops extends Expr<DataType> {
     }
 
     public void compile(CompileContext cc) throws CompilerException {
+        int mathOpsSign = cc.getMathOpsSign() ? 1 : 0;
         int opcode;
         switch (op) {
             case ADD:
-                opcode = Opcodes.IADD;
+                opcode = Opcodes.IADD + ((mathOpsSign + 1) % 2) * 4;
                 break;
             case SUB:
-                opcode = Opcodes.ISUB;
+                opcode = Opcodes.ISUB - ((mathOpsSign + 1) % 2) * 4;
                 break;
             case MUL:
                 opcode = Opcodes.IMUL;
@@ -84,8 +85,16 @@ public class Mops extends Expr<DataType> {
                 throw new CompilerException("Unknown operator: " + op);
         }
         if (r != null) {
-            l.compile(cc);
-            r.compile(cc);
+            System.out.println("Mops compile: " + l + op + ":" + opcode + " " + r);
+            if (opcode == Opcodes.ISUB) {
+                l.compile(cc);
+                cc.invertMathOpsSign();
+                r.compile(cc);
+                cc.invertMathOpsSign();
+            } else {
+                l.compile(cc);
+                r.compile(cc);
+            }
             cc.addInsn(new InsnNode(opcode));
         } else if (op == Operator.MINUS_SIGN) {
             l.compile(cc);

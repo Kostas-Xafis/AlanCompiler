@@ -10,7 +10,7 @@ import org.objectweb.asm.tree.*;
 
 public class WriteByte extends LangInternals {
 
-    private String name = "writeByte";
+    public static String name = "writeByte";
 
     private Type type = new FuncType(
         new FuncParams("s", DataType.Byte(), true),

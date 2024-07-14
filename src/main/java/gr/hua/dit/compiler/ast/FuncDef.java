@@ -8,9 +8,9 @@ import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import java.util.ArrayList;
@@ -77,26 +77,42 @@ public class FuncDef extends ASTNode<String> {
     }
 
     public void compile(CompileContext cc) throws CompilerException {
+        System.out.println("Compiling function: " + functionName + " with type: " + funcType);
         MethodNode prevMn = cc.getCurrentMethodNode();
+        LabelNode earlyExit = CompileContext.newLabel();
+        LabelNode prevEarlyExit = cc.getEarlyExitLabel();
+        cc.setEarlyExitLabel(earlyExit);
         if (!functionName.equals("main")) {
             MethodNode mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, functionName, Descriptor.build(funcType), null, null);
-            mn.visitMaxs(4, 4);
+            mn.visitMaxs(64, 64);
             cc.getClassNode().methods.add(mn);
             cc.setCurrentMethodNode(mn);
         }
-        cc.insertScope();
+        cc.openScope();
         if (args != null) {
-            args.compile(cc, 0);
+            args.compile(cc);
         }
         if (localDef != null) {
             localDef.compile(cc);
         }
         compoundStmt.compile(cc);
+        if (!funcType.getResult().equals(DataType.ProcType)) {
+            cc.addInsn(earlyExit);
+        }
         if (!functionName.equals("main")) {
-            cc.getCurrentMethodNode().visitInsn(Opcodes.RETURN);
+            if(funcType.getResult().equals(DataType.IntType)) {
+                cc.getCurrentMethodNode().visitInsn(Opcodes.IRETURN);
+            } else if (!funcType.getResult().equals(DataType.ProcType)) {
+                cc.getCurrentMethodNode().visitInsn(Opcodes.ARETURN);
+            } else {
+                cc.getCurrentMethodNode().visitInsn(Opcodes.RETURN);
+            }
+
         }
 
+        cc.setEarlyExitLabel(prevEarlyExit);
+
         cc.setCurrentMethodNode(prevMn);
-        cc.removeScope();
+        cc.closeScope();
     }
 }

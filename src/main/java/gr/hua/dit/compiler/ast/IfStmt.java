@@ -55,6 +55,10 @@ public class IfStmt extends Stmt {
 
         if (if_body != null) {
             if_body.compile(cc);
+            // In case of single if case statement
+            if (else_stmt == null && prevExitLabel == null) {
+                cc.addInsn(labelFalse);
+            }
         }
         if (else_stmt != null) {
             LabelNode exitLabel = prevExitLabel != null ? prevExitLabel : labelTrue;

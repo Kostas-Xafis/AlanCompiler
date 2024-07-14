@@ -13,7 +13,7 @@ public class Descriptor {
         } else if (type.equals(DataType.CharType)) {
             return "C";
         } else if (type.equals(DataType.StringType)) {
-            return "Ljava/lang/String;";
+            return "Ljava/util/ArrayList;";
         } else if (type.equals(DataType.ByteType)) {
             return "B";
         } else if (type.equals(DataType.BoolType)) {

@@ -1,11 +1,8 @@
 main () : proc
     x : int;
-    foo (x : int, y : int, z : int) : proc
-    {
-        writeInteger(x + y * y * z);
-    }
 {
     x = 20;
-    writeInteger(x);
-    foo(x, 5, 5);
+    if (x < 10) {
+        writeString("x is less than 10\n");
+    }
 }

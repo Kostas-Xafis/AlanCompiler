@@ -66,12 +66,20 @@ public class DataType extends Type {
         return isArray;
     }
 
+    public Boolean isAccessed() {
+        return isAccessed;
+    }
+
     public void setAccessed(Boolean accessed) {
         isAccessed = accessed;
     }
 
     public void setRef(Boolean ref) {
         isRef = ref;
+    }
+
+    public Boolean isRef() {
+        return isRef;
     }
 
     public Integer getArraySize() {
@@ -82,9 +90,8 @@ public class DataType extends Type {
         return this;
     }
 
-
     public String toString() {
-        return type.toString() + (isArray && !isAccessed ? "[]" : "");
+        return (isRef ? "&" : "") + type.toString() + (isArray ? "[" + arraySize + "]" : "") + (isAccessed ? " accessed" : "");
     }
 
     public boolean equals(Type t) {
@@ -105,7 +112,10 @@ public class DataType extends Type {
 
     public DataType copy() {
         if (isArray) {
-            return new DataType(type, arraySize);
+            DataType ndt = new DataType(type, arraySize);
+            ndt.isAccessed = isAccessed;
+            ndt.isRef = isRef;
+            return ndt;
         }
         return new DataType(type);
     }

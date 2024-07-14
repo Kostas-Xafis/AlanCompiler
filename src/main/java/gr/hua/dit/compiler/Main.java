@@ -38,44 +38,6 @@ public class Main {
     }
 
     public static void populateSymbolTable(SymbolTable tbl) {
-        tbl.addEntry("writeString", new FuncType(
-            new FuncParams("s", DataType.String(), true),
-            DataType.Proc())
-        );
-
-        tbl.addEntry("writeChar", new FuncType(
-            new FuncParams("c", DataType.Char(), false),
-            DataType.Proc())
-        );
-
-        tbl.addEntry("writeByte", new FuncType(
-            new FuncParams("b", DataType.Byte(), false),
-            DataType.Proc())
-        );
-
-        tbl.addEntry("readString", new FuncType(
-            new FuncParams("n", DataType.Int(), false,
-                new FuncParams("s", DataType.String(), true)),
-            DataType.Proc())
-        );
-
-        tbl.addEntry("readInteger", new FuncType(DataType.Int()));
-
-        tbl.addEntry("readChar", new FuncType(DataType.Char()));
-
-        tbl.addEntry("readByte", new FuncType(DataType.Byte()));
-
-        tbl.addEntry("strlen", new FuncType(
-            new FuncParams("s", DataType.String(), true),
-            DataType.Int())
-        );
-
-        tbl.addEntry("strcmp", new FuncType(
-            new FuncParams("s1", DataType.String(), true,
-                new FuncParams("s2", DataType.String(), true)),
-            DataType.Int())
-        );
-
         tbl.addEntry("strcat", new FuncType(
             new FuncParams("s1", DataType.String(), true,
                 new FuncParams("s2", DataType.String(), true)),

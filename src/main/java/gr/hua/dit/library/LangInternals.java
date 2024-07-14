@@ -1,15 +1,15 @@
 package gr.hua.dit.library;
 
+import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.types.Type;
 import org.objectweb.asm.tree.ClassNode;
 
 public abstract class LangInternals {
 
-    private String name;
-
+    public static String name;
     private Type type;
 
-    public void compile(ClassNode cw) {
+    public void compile(CompileContext cc) {
         throw new UnsupportedOperationException("Not supported yet.");
     };
 

@@ -2,7 +2,6 @@ package gr.hua.dit.compiler.ast;
 
 import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
-import gr.hua.dit.compiler.irgen.Address;
 import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 
@@ -19,11 +18,10 @@ public class ASTNode<T> {
     private ASTNode<?> right;
     private ArrayList<ASTNode> children;
 
-    public Address addr;
 
     public ASTNode(String name, T value, ASTNode<?> left, ASTNode<?> right) {
         this.id = idCounter++;
-        this.name = name;
+        this.name = name != null ? name : this.name;
         this.value = value;
         this.left = left;
         this.right = right;
@@ -153,10 +151,6 @@ public class ASTNode<T> {
             return false;
         }
         return this.id == node.id;
-    }
-
-    public Address getAddress() {
-        return addr;
     }
 
     public void sem(SymbolTable tbl) throws SemanticException {

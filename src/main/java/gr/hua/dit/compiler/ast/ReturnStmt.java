@@ -10,6 +10,7 @@ import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
 
 public class ReturnStmt extends ASTNode {
     private final Expr<?> expr;
@@ -50,6 +51,7 @@ public class ReturnStmt extends ASTNode {
     public void compile(CompileContext cc) throws CompilerException {
         if (expr != null) {
             expr.compile(cc);
+            cc.addInsn(new JumpInsnNode(Opcodes.GOTO, cc.getEarlyExitLabel()));
         }
     }
 }

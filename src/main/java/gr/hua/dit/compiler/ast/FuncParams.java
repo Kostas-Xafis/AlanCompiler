@@ -4,6 +4,7 @@ import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
 import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolTable;
+import gr.hua.dit.compiler.types.DataType;
 import gr.hua.dit.compiler.types.Type;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -17,6 +18,7 @@ public class FuncParams extends Expr {
     public FuncParams(String name, Type type, Boolean isRef, FuncParams next) {
         super(type, name, next);
         type.setRef(isRef);
+        setInferredType(type);
         this.setName("FuncParams");
         this.next = next;
         this.name = name;
@@ -30,7 +32,7 @@ public class FuncParams extends Expr {
         if (typeArr == null) {
             typeArr = new ArrayList<>();
         }
-        typeArr.add(this.getInferredType().copy());
+        typeArr.add(getInferredType().copy());
         if (next != null) {
             next.getParamTypes(typeArr);
         }
@@ -55,11 +57,11 @@ public class FuncParams extends Expr {
         }
     }
 
-    public void compile(CompileContext cc, Integer argInd) throws CompilerException {
-        System.out.println("Compiling FuncParams: " + name + " at index: " + argInd);
-        cc.addLocalInt(name, argInd);
+    public void compile(CompileContext cc) throws CompilerException {
+        System.out.println("Compiling FuncParams: " + name + " with type: " + getInferredType());
+        cc.addLocal(name, (DataType) getInferredType());
         if (next != null) {
-            next.compile(cc, argInd + 1);
+            next.compile(cc);
         }
     }
 

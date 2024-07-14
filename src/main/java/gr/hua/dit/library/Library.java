@@ -7,20 +7,31 @@ public class Library {
 
     public static ArrayList<String> functionNames = new ArrayList<>(
             Arrays.asList(
-                "writeString",
-                "writeChar",
-                "writeInteger",
-                "writeByte"
+                WriteByte.name,
+                WriteChar.name,
+                WriteInteger.name,
+                WriteString.name,
+                ReadByte.name,
+                ReadChar.name,
+                ReadInteger.name,
+                ReadString.name,
+                Strlen.name
             )
     );
 
     public static ArrayList<LangInternals> Functions(){
         return new ArrayList<>(
             Arrays.asList(
-                new WriteString(),
+                new WriteByte(),
                 new WriteChar(),
                 new WriteInteger(),
-                new WriteByte()
+                new WriteString(),
+//                new ReadByte(),
+                new ReadChar(),
+                new ReadInteger(),
+                new ReadString(),
+                new StringToArrayList(),
+                new Strlen()
             )
         );
     }

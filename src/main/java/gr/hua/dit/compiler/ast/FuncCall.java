@@ -8,6 +8,7 @@ import gr.hua.dit.compiler.symbol.SymbolEntry;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.FuncType;
 import gr.hua.dit.compiler.types.Type;
+import gr.hua.dit.library.LangInternals;
 import gr.hua.dit.library.Library;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -74,8 +75,9 @@ public class FuncCall extends Expr<FuncType> {
         if (args != null) {
             args.compile(cc);
         }
-        if (Library.functionNames.contains(this.functionName)) {
-            String descriptor = Descriptor.build(Library.getFunction(this.functionName).getType());
+        LangInternals func = Library.getFunction(functionName);
+        if (func != null) {
+            String descriptor = Descriptor.build(func.getType());
             cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));
         } else {
             cc.addInsn(new MethodInsnNode(Opcodes.INVOKESTATIC, "MiniBasic", this.functionName, descriptor, false));

@@ -40,7 +40,6 @@ public class Cond extends Expr<DataType> {
 
     public void compile(CompileContext cc) throws CompilerException {
         ASTNode<?> left = getLeft();
-        LabelNode subCondLabel = CompileContext.newLabel();
         if (left instanceof Ops) {
             ((Ops) left).compile(cc);
         } else if (left instanceof Lops) {
@@ -48,7 +47,6 @@ public class Cond extends Expr<DataType> {
         } else if (left instanceof ConstBool) {
             ((ConstBool) left).compile(cc);
         }
-//        cc.addInsn(subCondLabel);
     }
 
     @Override

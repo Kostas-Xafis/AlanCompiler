@@ -31,7 +31,6 @@ public class Assignment extends ASTNode {
 //        System.out.println("Assignment pre sem: " + lvalue + " = " + expr);
         lvalue.sem(tbl);
         expr.sem(tbl);
-//        System.out.println("Assignment after sem: " + lvalue.getInferredType() + " = " + expr.getInferredType());
         if (expr instanceof FuncCall) {
             FuncCall fc = (FuncCall) expr;
             if (fc.getInferredType().getResult().equals(DataType.ProcType)) {
@@ -45,8 +44,11 @@ public class Assignment extends ASTNode {
     }
 
     public void compile(CompileContext cc) throws CompilerException {
-        expr.compile(cc);
-
-        lvalue.compile(cc, "store");
+        if(lvalue.getInferredType().isAccessed()) {
+            lvalue.compile(cc, "store", expr);
+        } else {
+            expr.compile(cc);
+            lvalue.compile(cc, "store");
+        }
     }
 }

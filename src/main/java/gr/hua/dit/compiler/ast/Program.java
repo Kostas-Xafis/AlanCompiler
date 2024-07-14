@@ -76,15 +76,16 @@ public class Program extends ASTNode {
 
         for (LangInternals func : Library.Functions()) {
             try {
-                func.compile(cn);
+                func.compile(context);
             } catch (UnsupportedOperationException e) {
                 System.err.println(e.getMessage() + " in " + func.getName());
             }
         }
 
         mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
-
         context.setCurrentMethodNode(mn);
+
+        context.constructHeap();
 
         if (!main.getFunctionName().equals("main")) {
             MethodNode mn2 = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, main.getFunctionName(), main.getDescriptor(), null, null);

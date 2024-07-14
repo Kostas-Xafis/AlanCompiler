@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class SymbolTable {
 
-    private static class Scope extends HashMap<String, SymbolEntry> {
+    private class Scope extends HashMap<String, SymbolEntry> {
         public Scope(){
             super();
         }

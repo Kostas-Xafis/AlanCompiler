@@ -6,13 +6,13 @@ main () : proc
     {
         l = strlen(s);
         i = 0;
-        while (i < l) {
+        while (i < l - 1) {
             r[i] = s[l - i - 1];
             i = i + 1;
         }
         r[i] = '\0';
     }
 { -- main
-    reverse("Hello, World!\0");
+    reverse("\n!dlrow olleH");
     writeString(r);
 } -- main

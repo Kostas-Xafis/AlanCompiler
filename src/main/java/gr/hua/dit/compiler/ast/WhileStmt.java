@@ -1,9 +1,12 @@
 package gr.hua.dit.compiler.ast;
 
+import gr.hua.dit.compiler.errors.CompilerException;
 import gr.hua.dit.compiler.errors.SemanticException;
-import gr.hua.dit.compiler.irgen.IRHelper;
-import gr.hua.dit.compiler.irgen.LabelAddress;
+import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolTable;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 
 public class WhileStmt extends Stmt {
     private final Cond cond;
@@ -21,13 +24,16 @@ public class WhileStmt extends Stmt {
         stmt.sem(tbl);
     }
 
-    public void compile() {
-        LabelAddress labelTrue = IRHelper.newLabel();
-        LabelAddress labelFalse = IRHelper.newLabel();
-        System.out.println(labelTrue + ":");
-//        cond.compile();
-//        System.out.println("if " + cond.getAddress() + " goto " + labelTrue);
-//        System.out.println("goto " + labelFalse);
-//        System.out.println(labelFalse + ":");
+    public void compile(CompileContext cc) throws CompilerException {
+        // Create a new label for the start of the loop
+        // Compile the condition
+        LabelNode start = new LabelNode();
+        LabelNode end = new LabelNode();
+        cc.addInsn(start);
+        cc.setExitLabel(end);
+        cond.compile(cc);
+        stmt.compile(cc);
+        cc.addInsn(new JumpInsnNode(Opcodes.GOTO, start));
+        cc.addInsn(end);
     }
 }

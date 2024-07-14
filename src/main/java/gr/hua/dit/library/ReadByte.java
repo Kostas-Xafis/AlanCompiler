@@ -9,21 +9,19 @@ import gr.hua.dit.compiler.types.Type;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-public class WriteChar extends LangInternals {
+public class ReadByte extends LangInternals {
 
-    public static String name = "writeChar";
+    public static String name = "readByte";
 
-    private Type type = new FuncType(
-        new FuncParams("s", DataType.Char(), true),
-        DataType.Proc()
-    );
+    private Type type = new FuncType(DataType.Byte());
+
 
     public void compile(CompileContext cc) {
         String descriptor = Descriptor.build(type);
         MethodNode mn = new MethodNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, name, descriptor, null, null);
-        mn.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"));
-        mn.instructions.add(new VarInsnNode(Opcodes.ILOAD, 0));
-        mn.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", descriptor, false));
+//        mn.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"));
+//        mn.instructions.add(new VarInsnNode(Opcodes.ILOAD, 0));
+//        mn.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", descriptor, false));
         mn.instructions.add(new InsnNode(Opcodes.RETURN));
         mn.maxLocals = 1;
         mn.maxStack = 2;
@@ -50,6 +48,7 @@ public class WriteChar extends LangInternals {
     public void setType(Type type) {
         this.type = type;
     }
+
 //        tbl.addEntry("readString", new FuncType(
 //            new FuncParams("n", DataType.Int(), false,
 //        new FuncParams("s", DataType.String(), true)),

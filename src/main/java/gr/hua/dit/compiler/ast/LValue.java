@@ -6,8 +6,6 @@ import gr.hua.dit.compiler.irgen.CompileContext;
 import gr.hua.dit.compiler.symbol.SymbolEntry;
 import gr.hua.dit.compiler.symbol.SymbolTable;
 import gr.hua.dit.compiler.types.DataType;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.VarInsnNode;
 
 import java.util.Optional;
 
@@ -68,24 +66,32 @@ public class LValue extends Expr<DataType> {
     }
 
     public void compile(CompileContext cc) throws CompilerException {
-        compile(cc, "load");
+        compile(cc, "load", null);
     }
 
     public void compile(CompileContext cc, String action) throws CompilerException {
-        System.out.println("Compiling LValue: " + name + " with action: " + action);
-        if (expr != null) {
-            expr.compile(cc);
-        }
-//        if (action.equals("load")) {
-//            cc.addInsn(expr == null ? cc.getLoadInsn(getName()) : cc.getArrayLoadInsn(getName()));
-//        } else if (action.equals("store")) {
-//            cc.addInsn(expr == null ? cc.getStoreInsn(getName()) : cc.getArrayStoreInsn(getName()));
-//        }
-        if (action.equals("load")) {
-            cc.loadLocalInt(name);
-        } else if (action.equals("store")) {
-            cc.storeLocalInt(name);
-//            cc.addInsn(new VarInsnNode(Opcodes.ISTORE, 400));
+        compile(cc, action, null);
+    }
+
+    public void compile(CompileContext cc, String action, Expr insertedValue) throws CompilerException {
+//        System.out.println("Compiling LValue: " + this + " with action: " + action);
+        if (this.getInferredType().isAccessed()) {
+            if (action.equals("load")) {
+                // Need to implement it here too
+                cc.loadLocal(name, this.getInferredType(), expr);
+            } else if (action.equals("store")) {
+                System.out.println("Storing type: " + this.getInferredType());
+                cc.storeLocal(name, this.getInferredType(), insertedValue, expr);
+            }
+        } else {
+            if (expr != null) {
+                expr.compile(cc);
+            }
+            if (action.equals("load")) {
+                cc.loadLocal(name);
+            } else if (action.equals("store")) {
+                cc.storeLocal(name, this.getInferredType());
+            }
         }
     }
 }
